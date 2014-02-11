@@ -50,7 +50,7 @@ def main():
         mouseClicked = False
 
         DISPLAYSURF.fill(BGCOLOR)
-        drawBoard()
+        drawBoard(revealedBoxes)
 
         catImg = pygame.image.load('catgirl.png')
         boyImg = pygame.image.load('boy.png')
@@ -70,6 +70,8 @@ def main():
                 drawHighlightBox(boxx, boxy)
             if not revealedBoxes[boxx][boxy] and mouseClicked:
                 #revealBoxesAnimation(mainBoard, [(boxx, boxy)])
+                revealedBoxes = generateRevealedBoxesData(False)
+                pygame.display.update()
                 drawGirl(boxx, boxy)
                 revealedBoxes[boxx][boxy] = True # set the box as "revealed"
         pygame.display.update()
@@ -77,7 +79,8 @@ def main():
 
 def drawGirl(boxx, boxy):
     left, top = leftTopCoordsOfBox(boxx, boxy)
-    DISPLAYSURF.blit(boyImg, (left,top))
+    DISPLAYSURF.blit(catImg, (left,top))
+    #revealedBoxes = generateRevealedBoxesData(False)
 
 def drawHighlightBox(boxx, boxy):
     left, top = leftTopCoordsOfBox(boxx, boxy)
@@ -102,23 +105,24 @@ def getBoxAtPixel(x, y):
     return (None, None)
 
 
-def drawBoard():
-    # Draws all of the boxes at the beginning of game.
-    for boxx in range(BOARDWIDTH):
-        for boxy in range(BOARDHEIGHT):
-            left, top = leftTopCoordsOfBox(boxx, boxy)
-            pygame.draw.rect(DISPLAYSURF, BOXCOLOR, (left, top, BOXSIZE, BOXSIZE))
-
-#def drawBoard(board, revealed):
-    ## Draws all of the boxes in their covered or revealed state.
+#def drawBoard():
+    ## Draws all of the boxes at the beginning of game.
     #for boxx in range(BOARDWIDTH):
         #for boxy in range(BOARDHEIGHT):
             #left, top = leftTopCoordsOfBox(boxx, boxy)
-            #if not revealed[boxx][boxy]:
-                ## Draw a covered box.
-                #pygame.draw.rect(DISPLAYSURF, BOXCOLOR, (left, top, BOXSIZE, BOXSIZE))
-            #else:
-                ## Draw the (revealed) icon.
+            #pygame.draw.rect(DISPLAYSURF, BOXCOLOR, (left, top, BOXSIZE, BOXSIZE))
+
+def drawBoard(revealed):
+    # Draws all of the boxes in their covered or revealed state.
+    for boxx in range(BOARDWIDTH):
+        for boxy in range(BOARDHEIGHT):
+            left, top = leftTopCoordsOfBox(boxx, boxy)
+            if not revealed[boxx][boxy]:
+                # Draw a covered box.
+                pygame.draw.rect(DISPLAYSURF, BOXCOLOR, (left, top, BOXSIZE, BOXSIZE))
+            else:
+                drawGirl(boxx, boxy)
+                # Draw the (revealed) icon.
                 #shape, color = getShapeAndColor(board, boxx, boxy)
                 #drawIcon(shape, color, boxx, boxy)
 def getRandomizedBoard():
