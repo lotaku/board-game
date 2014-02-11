@@ -1,5 +1,5 @@
 import random,pygame,sys
-from pygame import *
+from pygame.locals import *
 
 FPS=30
 WINDOWWIDTH = 680
@@ -30,9 +30,9 @@ BGCOLOR = NAVYBLUE
 LIGHTBGCOLOR = GRAY
 BOXCOLOR = WHITE
 HIGHLIGHTCOLOR = BLUE
-
+userName = ''
 def main():
-    global FPSCLOCK, DISPLAYSURF,catImg,boyImg
+    global FPSCLOCK, DISPLAYSURF,catImg,boyImg,userName
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
     DISPLAYSURF=pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
@@ -40,17 +40,52 @@ def main():
     mousex = 0
     mousey = 0
     pygame.display.set_caption('Board Game')
-
-
-
+    DISPLAYSURF.fill(NAVYBLUE)
+    #pygame.key.get_pressed()
     #mainBoard = getRandomizedBoard()
     revealedBoxes = generateRevealedBoxesData(False)
+
+    #drawBoard(revealedBoxes)
+    pygame.display.update()
+
+    #while True:# logging windows
+        #for event in pygame.event.get():
+            #if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
+                #pygame.quit()
+                #sys.exit()
+            #elif event.type == MOUSEBUTTONUP:
+                #break
+                #DISPLAYSURF.fill(BGCOLOR)
+                #drawBoard(revealedBoxes)
+        #pygame.display.update()
+        #FPSCLOCK.tick(FPS)
+
+
+    while True:
+        global userName
+        closeLoginWindow = False
+        showEnterHint()
+        for event in pygame.event.get():
+            if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
+                pygame.quit()
+                sys.exit()
+            #elif event.type == pygame.KEYDOWN and event.key != K_y: # K_KP_ENTER
+            elif event.type == pygame.KEYDOWN and event.key != K_RETURN and event.key != K_ESCAPE: # K_KP_ENTER
+                EnterUserName(event)
+            elif event.type == pygame.KEYDOWN and event.key == K_RETURN:
+                closeLoginWindow = True
+
+        if closeLoginWindow:
+            break
+        pygame.display.update()
+        FPSCLOCK.tick(FPS)
 
     while True:
         mouseClicked = False
 
         DISPLAYSURF.fill(BGCOLOR)
         drawBoard(revealedBoxes)
+        showWellcomUser(userName)
 
         catImg = pygame.image.load('catgirl.png')
         boyImg = pygame.image.load('boy.png')
@@ -71,12 +106,36 @@ def main():
             if not revealedBoxes[boxx][boxy] and mouseClicked:
                 #revealBoxesAnimation(mainBoard, [(boxx, boxy)])
                 revealedBoxes = generateRevealedBoxesData(False)
-                pygame.display.update()
+                #pygame.display.update()
                 drawGirl(boxx, boxy)
                 revealedBoxes[boxx][boxy] = True # set the box as "revealed"
         pygame.display.update()
         FPSCLOCK.tick(FPS)
+def showWellcomUser(userName):
+    fontObj = pygame.font.Font('freesansbold.ttf', 22)
+    userName = 'Wellcom ' + userName
+    showWellcomUserSurfaceObj = fontObj.render(userName, True, GREEN, NAVYBLUE)
+    #wellcomRectObj = wellcomSurfaceObj.get_rect()
+    #wellcomRectObj.center = (200, 150)
+    DISPLAYSURF.blit(showWellcomUserSurfaceObj, (15,20))
+    #pygame.display.update()
+def showEnterHint():
+    fontObj = pygame.font.Font('freesansbold.ttf', 22)
+    wellcomSurfaceObj = fontObj.render('Enter Your UserName (Submit with "ENTER" key)', True, GREEN, NAVYBLUE)
+    #wellcomRectObj = wellcomSurfaceObj.get_rect()
+    #wellcomRectObj.center = (200, 150)
+    DISPLAYSURF.blit(wellcomSurfaceObj, (55,150))
+    #pygame.display.update()
 
+def EnterUserName(event):
+    global userName
+    userName += event.unicode
+    fontObj = pygame.font.Font('freesansbold.ttf', 22)
+    userNameSurfaceObj = fontObj.render(userName, True, ORANGE, NAVYBLUE)
+    #userNameRectObj = userNameSurfaceObj.get_rect()
+    #userNameRectObj.center = (10, 20)
+    DISPLAYSURF.blit(userNameSurfaceObj, (255,200))
+    #pygame.display.update()
 def drawGirl(boxx, boxy):
     left, top = leftTopCoordsOfBox(boxx, boxy)
     DISPLAYSURF.blit(catImg, (left,top))
