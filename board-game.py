@@ -1,4 +1,9 @@
-import random,pygame,sys
+import random,\
+        pygame,\
+        sys,\
+        socket,\
+        struct
+
 from pygame.locals import *
 
 FPS=30
@@ -25,12 +30,16 @@ ORANGE   = (255, 128,   0)
 PURPLE   = (255,   0, 255)
 CYAN     = (  0, 255, 255)
 
-
 BGCOLOR = NAVYBLUE
 LIGHTBGCOLOR = GRAY
 BOXCOLOR = WHITE
 HIGHLIGHTCOLOR = BLUE
 userName = ''
+host = ''
+port = 51423
+serverAddr = (host, port)
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 def main():
     global FPSCLOCK, DISPLAYSURF,catImg,boyImg,userName
     pygame.init()
@@ -41,28 +50,13 @@ def main():
     mousey = 0
     pygame.display.set_caption('Board Game')
     DISPLAYSURF.fill(NAVYBLUE)
-    #pygame.key.get_pressed()
-    #mainBoard = getRandomizedBoard()
+
     revealedBoxes = generateRevealedBoxesData(False)
 
-    #drawBoard(revealedBoxes)
     pygame.display.update()
 
-    #while True:# logging windows
-        #for event in pygame.event.get():
-            #if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
-                #pygame.quit()
-                #sys.exit()
-            #elif event.type == MOUSEBUTTONUP:
-                #break
-                #DISPLAYSURF.fill(BGCOLOR)
-                #drawBoard(revealedBoxes)
-        #pygame.display.update()
-        #FPSCLOCK.tick(FPS)
-
-
     while True:
-        global userName
+        global userName,closeLoginWindow
         closeLoginWindow = False
         showEnterHint()
         for event in pygame.event.get():
@@ -73,7 +67,10 @@ def main():
             elif event.type == pygame.KEYDOWN and event.key != K_RETURN and event.key != K_ESCAPE: # K_KP_ENTER
                 EnterUserName(event)
             elif event.type == pygame.KEYDOWN and event.key == K_RETURN:
-                closeLoginWindow = True
+                #closeLoginWindow = True
+                #if (enterWorld(userName, closeLoginWindow)):
+                    #closeLoginWindow = True
+                enterWorld(userName)
 
         if closeLoginWindow:
             break
@@ -111,6 +108,24 @@ def main():
                 revealedBoxes[boxx][boxy] = True # set the box as "revealed"
         pygame.display.update()
         FPSCLOCK.tick(FPS)
+def enterWorld(userNameTemp):
+    global closeLoginWindow,userName
+    s.settimeout(1)
+    userNamePacked = struct.pack("!3s", str(userNameTemp))
+    s.sendto(userNamePacked, serverAddr)
+    #received = ''
+    receivedData = s.recv(1024)
+    receivedDataUnpacked = struct.unpack("!4s", receivedData)[0]
+    if receivedDataUnpacked == 'True':
+        closeLoginWindow = 1
+        #userName = receivedDataUnpacked
+    #else:
+        #closeLoginWindow = 1
+        #userName = receivedDataUnpacked
+    #return closeLoginWindow
+    return
+
+
 def showWellcomUser(userName):
     fontObj = pygame.font.Font('freesansbold.ttf', 22)
     userName = 'Wellcom ' + userName
