@@ -1,19 +1,31 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
 import random,\
         pygame,\
         sys,\
         socket,\
-        struct
+        struct,\
+        time,\
+        copy
+
+from SocketServer import UDPServer, \
+        DatagramRequestHandler, \
+        ForkingMixIn, \
+        BaseRequestHandler #, ForkingUDPServer
 
 from pygame.locals import *
+#import pygame.locals
 
 FPS=30
 WINDOWWIDTH = 680
 WINDOWHEIGHT=580
 BOXSIZE=85
 GAPSIZE=10
-BOARDWIDTH = 5
-BOARDHEIGHT = 5
-
+BOARDWIDTH = 2
+BOARDHEIGHT = 2
+revealedBoxes = []
+usersNum = BOARDWIDTH * BOARDHEIGHT  # 计算可容纳的用户总数
 XMARGIN = int((WINDOWWIDTH - (BOARDWIDTH * (BOXSIZE + GAPSIZE))) / 2)
 YMARGIN = int((WINDOWHEIGHT - (BOARDHEIGHT * (BOXSIZE + GAPSIZE))) / 2)
 
@@ -40,8 +52,10 @@ port = 51423
 serverAddr = (host, port)
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+board = []
 def main():
-    global FPSCLOCK, DISPLAYSURF,catImg,boyImg,userName
+    global FPSCLOCK, DISPLAYSURF,catImg,boyImg,userName#,revealedBoxes
+
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
     DISPLAYSURF=pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
@@ -51,11 +65,11 @@ def main():
     pygame.display.set_caption('Board Game')
     DISPLAYSURF.fill(NAVYBLUE)
 
-    revealedBoxes = generateRevealedBoxesData(False)
+    revealedBoxes= generateRevealedBoxesData(False)
 
     pygame.display.update()
 
-    while True:
+    while True:#login windows
         global userName,closeLoginWindow
         closeLoginWindow = False
         showEnterHint()
@@ -70,22 +84,25 @@ def main():
                 #closeLoginWindow = True
                 #if (enterWorld(userName, closeLoginWindow)):
                     #closeLoginWindow = True
-                enterWorld(userName)
+                board = getRandomizedBoard()
+                board, closeLoginWindow = enterWorld(userName)
 
         if closeLoginWindow:
             break
         pygame.display.update()
         FPSCLOCK.tick(FPS)
 
-    while True:
+    #justLogin = 1
+    #initUserLocation(justLogin, revealedBoxes)
+
+    while True: #Game Start
         mouseClicked = False
-
         DISPLAYSURF.fill(BGCOLOR)
-        drawBoard(revealedBoxes)
-        showWellcomUser(userName)
-
         catImg = pygame.image.load('catgirl.png')
         boyImg = pygame.image.load('boy.png')
+        drawBoard(board)
+        #showWellcomUser(userName)
+
         for event in pygame.event.get():
             if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
                 pygame.quit()
@@ -93,37 +110,99 @@ def main():
             elif event.type == MOUSEMOTION:
                 mousex,mousey =event.pos
             elif event.type == MOUSEBUTTONUP:
+                #global justLogin
                 mousex, mousey = event.pos
                 mouseClicked = True
+                #justLogin = 0
+                #print 'to 0'
+                #time.sleep(3)
         boxx, boxy = getBoxAtPixel(mousex, mousey)
         if boxx != None and boxy != None:
             # The mouse is currently over a box.
             if not revealedBoxes[boxx][boxy]:
                 drawHighlightBox(boxx, boxy)
             if not revealedBoxes[boxx][boxy] and mouseClicked:
-                #revealBoxesAnimation(mainBoard, [(boxx, boxy)])
                 revealedBoxes = generateRevealedBoxesData(False)
-                #pygame.display.update()
                 drawGirl(boxx, boxy)
                 revealedBoxes[boxx][boxy] = True # set the box as "revealed"
         pygame.display.update()
         FPSCLOCK.tick(FPS)
+
+#def mutilUserServerStart():
+    #class boardGameRequestHandler(BaseRequestHandler):
+        #def handle(self):
+                #receivedData = self.request[0].strip()
+                #socket = self.request[1]
+                #unpackedreceivedData = struct.unpack('!3s',receivedData)
+                #print "{} wrote:".format(self.client_address[0])
+                #print "{} wrote:".format(self.client_address[1])
+                #print "Wellcome {}.".format(unpackedreceivedData)
+                ##socket.sendto(data.upper(), self.client_address)
+                #respondedData = 'True'
+                ##respondedDataPacked = struct
+                #socket.sendto(struct.pack('!4s', respondedData), self.client_address)
+
+    #class boardGameServer(UDPServer):
+##class boardGameServer(ForkingMixIn, UDPServer):
+        #allow_reuse_address = 1
+        #serveraddr = ('', 51425)
+        #server =  boardGameServer(serveraddr,boardGameRequestHandler)
+        #server.serve_forever()
+def getRandomizedBoard(): # V1.1
+    """
+    初始化世界
+    """
+    # Create the board data structure, with randomly placed icons.
+    global board
+    #i=0
+    board = []
+    userAndLocation = [['WOW'], [0, 0]]
+    #userAndLocation = [[i], [i+1, i+2]]
+    for x in range(BOARDWIDTH):
+        column = []
+        for y in range(BOARDHEIGHT):
+            #column.append(userAndLocation)
+            #column.append(copy._deepcopy_list(userAndLocation))
+            column.append(copy.deepcopy(userAndLocation))
+        board.append(column)
+    return board
+def CreatNewWorld(bufunPacked):
+    global board
+    """
+    更新世界数据
+    bufunPacked 是unpack得到的数据，并且已先调用了list()从元组转成了 list """
+    for width in range(BOARDWIDTH):
+        for height in range(BOARDHEIGHT):
+            board[width][height][0][0] = bufunPacked[0]
+            del bufunPacked[0]
+            board[width][height][1][0] = bufunPacked[0]
+            del bufunPacked[0]
+            board[width][height][1][1] = bufunPacked[0]
+            del bufunPacked[0]
+    return board
+
+def initUserLocation(justLogin,revealedBoxes):
+    if justLogin:
+        revealedBoxes[0][0] = True
+    else:
+        revealedBoxes[0][0] = False
+
 def enterWorld(userNameTemp):
-    global closeLoginWindow,userName
+    global closeLoginWindow,userName,board
     s.settimeout(1)
-    userNamePacked = struct.pack("!3s", str(userNameTemp))
-    s.sendto(userNamePacked, serverAddr)
-    #received = ''
-    receivedData = s.recv(1024)
-    receivedDataUnpacked = struct.unpack("!4s", receivedData)[0]
-    if receivedDataUnpacked == 'True':
+    userLocation = (0, 0)
+    formatStr = '!'+'3s1i1i'  # 打包 格式化字符串
+    #formatStr = "!3s4s4s"
+    sendPacked = struct.pack(formatStr, str(userNameTemp),userLocation[0], userLocation[1])
+    s.sendto(sendPacked, serverAddr)
+    receivedData = s.recv(2048)
+    formatStrUnpack = '!'+('3s1i1i'*usersNum)  # 打包 格式化字符串
+    receivedDataUnpacked = struct.unpack(formatStrUnpack, receivedData)
+    receivedDataUnpacked =list(receivedDataUnpacked)
+    board = CreatNewWorld(receivedDataUnpacked)
+    if receivedData:
         closeLoginWindow = 1
-        #userName = receivedDataUnpacked
-    #else:
-        #closeLoginWindow = 1
-        #userName = receivedDataUnpacked
-    #return closeLoginWindow
-    return
+    return board,closeLoginWindow
 
 
 def showWellcomUser(userName):
@@ -186,46 +265,53 @@ def getBoxAtPixel(x, y):
             #left, top = leftTopCoordsOfBox(boxx, boxy)
             #pygame.draw.rect(DISPLAYSURF, BOXCOLOR, (left, top, BOXSIZE, BOXSIZE))
 
-def drawBoard(revealed):
+def drawBoard(board):
+    global revealedBoxes
     # Draws all of the boxes in their covered or revealed state.
     for boxx in range(BOARDWIDTH):
         for boxy in range(BOARDHEIGHT):
             left, top = leftTopCoordsOfBox(boxx, boxy)
-            if not revealed[boxx][boxy]:
-                # Draw a covered box.
+            if board[boxx][boxy][0][0] != 'WOW':
+                revealedBoxes[boxx][boxy] = True
                 pygame.draw.rect(DISPLAYSURF, BOXCOLOR, (left, top, BOXSIZE, BOXSIZE))
-            else:
                 drawGirl(boxx, boxy)
-                # Draw the (revealed) icon.
-                #shape, color = getShapeAndColor(board, boxx, boxy)
-                #drawIcon(shape, color, boxx, boxy)
-def getRandomizedBoard():
-    # Get a list of every possible shape in every possible color.
-    icons = []
-    for color in ALLCOLORS:
-        for shape in ALLSHAPES:
-            icons.append( (shape, color) )
+            else:
+                pygame.draw.rect(DISPLAYSURF, BOXCOLOR, (left, top, BOXSIZE, BOXSIZE))
+            #if not revealed[boxx][boxy]:
+                ## Draw a covered box.
+                #pygame.draw.rect(DISPLAYSURF, BOXCOLOR, (left, top, BOXSIZE, BOXSIZE))
+            #else:
+                #drawGirl(boxx, boxy)
+#def getRandomizedBoard():
+    ## Get a list of every possible shape in every possible color.
+    #icons = []
+    #for color in ALLCOLORS:
+        #for shape in ALLSHAPES:
+            #icons.append( (shape, color) )
 
-    random.shuffle(icons) # randomize the order of the icons list
-    numIconsUsed = int(BOARDWIDTH * BOARDHEIGHT / 2) # calculate how many icons are needed
-    icons = icons[:numIconsUsed] * 2 # make two of each
-    random.shuffle(icons)
+    #random.shuffle(icons) # randomize the order of the icons list
+    #numIconsUsed = int(BOARDWIDTH * BOARDHEIGHT / 2) # calculate how many icons are needed
+    #icons = icons[:numIconsUsed] * 2 # make two of each
+    #random.shuffle(icons)
 
-    # Create the board data structure, with randomly placed icons.
-    board = []
-    for x in range(BOARDWIDTH):
-        column = []
-        for y in range(BOARDHEIGHT):
-            column.append(icons[0])
-            del icons[0] # remove the icons as we assign them
-        board.append(column)
-    return board
+    ## Create the board data structure, with randomly placed icons.
+    #board = []
+    #for x in range(BOARDWIDTH):
+        #column = []
+        #for y in range(BOARDHEIGHT):
+            #column.append(icons[0])
+            #del icons[0] # remove the icons as we assign them
+        #board.append(column)
+    #return board
 
 
 def generateRevealedBoxesData(val):
-    revealedBoxes = []
+    global revealedBoxes
     for i in range(BOARDWIDTH):
-        revealedBoxes.append([val] * BOARDHEIGHT)
+        listOfHeight = [val]*BOARDHEIGHT
+        listdeepcopy= copy.deepcopy(listOfHeight)
+        revealedBoxes.append(listdeepcopy)
+        #revealedBoxes.append([val] * BOARDHEIGHT)
     return revealedBoxes
 
 
