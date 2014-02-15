@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
 import random,\
         pygame,\
         sys,\
@@ -25,6 +24,7 @@ GAPSIZE=10
 BOARDWIDTH = 2
 BOARDHEIGHT = 2
 revealedBoxes = []
+NOBODY = 'WOW'
 usersNum = BOARDWIDTH * BOARDHEIGHT  # 计算可容纳的用户总数
 XMARGIN = int((WINDOWWIDTH - (BOARDWIDTH * (BOXSIZE + GAPSIZE))) / 2)
 YMARGIN = int((WINDOWHEIGHT - (BOARDHEIGHT * (BOXSIZE + GAPSIZE))) / 2)
@@ -77,13 +77,9 @@ def main():
             if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
                 pygame.quit()
                 sys.exit()
-            #elif event.type == pygame.KEYDOWN and event.key != K_y: # K_KP_ENTER
             elif event.type == pygame.KEYDOWN and event.key != K_RETURN and event.key != K_ESCAPE: # K_KP_ENTER
                 EnterUserName(event)
             elif event.type == pygame.KEYDOWN and event.key == K_RETURN:
-                #closeLoginWindow = True
-                #if (enterWorld(userName, closeLoginWindow)):
-                    #closeLoginWindow = True
                 board = getRandomizedBoard()
                 board, closeLoginWindow = enterWorld(userName)
 
@@ -100,54 +96,83 @@ def main():
         DISPLAYSURF.fill(BGCOLOR)
         catImg = pygame.image.load('catgirl.png')
         boyImg = pygame.image.load('boy.png')
+        showWellcomUser(userName)
+        board = refreshWorld()
         drawBoard(board)
-        #showWellcomUser(userName)
-
         for event in pygame.event.get():
             if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
+                exitWorld(userName)
                 pygame.quit()
                 sys.exit()
             elif event.type == MOUSEMOTION:
                 mousex,mousey =event.pos
             elif event.type == MOUSEBUTTONUP:
-                #global justLogin
                 mousex, mousey = event.pos
                 mouseClicked = True
-                #justLogin = 0
-                #print 'to 0'
-                #time.sleep(3)
         boxx, boxy = getBoxAtPixel(mousex, mousey)
         if boxx != None and boxy != None:
-            # The mouse is currently over a box.
-            if not revealedBoxes[boxx][boxy]:
+            if board[boxx][boxy][0][0] == 'WOW':
                 drawHighlightBox(boxx, boxy)
-            if not revealedBoxes[boxx][boxy] and mouseClicked:
-                revealedBoxes = generateRevealedBoxesData(False)
-                drawGirl(boxx, boxy)
-                revealedBoxes[boxx][boxy] = True # set the box as "revealed"
+            if board[boxx][boxy][0][0] == 'WOW' and mouseClicked:
+                moveOperation(userName,boxx,boxy)
+                drawBoard(board)
         pygame.display.update()
         FPSCLOCK.tick(FPS)
+def exitWorld(userName):
+    """退出游戏世界
+    :returns: @todo
 
-#def mutilUserServerStart():
-    #class boardGameRequestHandler(BaseRequestHandler):
-        #def handle(self):
-                #receivedData = self.request[0].strip()
-                #socket = self.request[1]
-                #unpackedreceivedData = struct.unpack('!3s',receivedData)
-                #print "{} wrote:".format(self.client_address[0])
-                #print "{} wrote:".format(self.client_address[1])
-                #print "Wellcome {}.".format(unpackedreceivedData)
-                ##socket.sendto(data.upper(), self.client_address)
-                #respondedData = 'True'
-                ##respondedDataPacked = struct
-                #socket.sendto(struct.pack('!4s', respondedData), self.client_address)
+    """
+    s.settimeout(1)
+    userNameTemp = userName
+    userLocation = (9999, 9999)
+    formatStr = '!'+'3s1i1i'  # 打包 格式化字符串
+    #formatStr = "!3s4s4s"
+    sendPacked = struct.pack(formatStr, str(userNameTemp),userLocation[0], userLocation[1])
+    s.sendto(sendPacked, serverAddr)
+    #receivedData = s.recv(2048)
+    #formatStrUnpack = '!'+('3s1i1i'*usersNum)  # 打包 格式化字符串
+    #receivedDataUnpacked = struct.unpack(formatStrUnpack, receivedData)
+    #receivedDataUnpacked =list(receivedDataUnpacked)
+    #board = CreatNewWorld(receivedDataUnpacked)
+    #return board
+def refreshWorld():
+    """@todo: Docstring for refreshWorld.
+    :arg1: @todo
+    :returns: @todo
+    """
+    s.settimeout(1)
+    userNameTemp = 'xxx'
+    userLocation = (0, 0)
+    formatStr = '!'+'3s1i1i'  # 打包 格式化字符串
+    #formatStr = "!3s4s4s"
+    sendPacked = struct.pack(formatStr, str(userNameTemp),userLocation[0], userLocation[1])
+    s.sendto(sendPacked, serverAddr)
+    receivedData = s.recv(2048)
+    formatStrUnpack = '!'+('3s1i1i'*usersNum)  # 打包 格式化字符串
+    receivedDataUnpacked = struct.unpack(formatStrUnpack, receivedData)
+    receivedDataUnpacked =list(receivedDataUnpacked)
+    board = CreatNewWorld(receivedDataUnpacked)
+    return board
 
-    #class boardGameServer(UDPServer):
-##class boardGameServer(ForkingMixIn, UDPServer):
-        #allow_reuse_address = 1
-        #serveraddr = ('', 51425)
-        #server =  boardGameServer(serveraddr,boardGameRequestHandler)
-        #server.serve_forever()
+
+def moveOperation(userName, boxx, boxy):
+    """发送移动包，收到包，刷新世界
+    :returns: @todo
+    """
+    s.settimeout(1)
+    userNameTemp = userName
+    userLocation = (boxx, boxy)
+    formatStr = '!'+'3s1i1i'  # 打包 格式化字符串
+    #formatStr = "!3s4s4s"
+    sendPacked = struct.pack(formatStr, str(userNameTemp),userLocation[0], userLocation[1])
+    s.sendto(sendPacked, serverAddr)
+    receivedData = s.recv(2048)
+    formatStrUnpack = '!'+('3s1i1i'*usersNum)  # 打包 格式化字符串
+    receivedDataUnpacked = struct.unpack(formatStrUnpack, receivedData)
+    receivedDataUnpacked =list(receivedDataUnpacked)
+    board = CreatNewWorld(receivedDataUnpacked)
+    return board
 def getRandomizedBoard(): # V1.1
     """
     初始化世界
@@ -272,7 +297,7 @@ def drawBoard(board):
         for boxy in range(BOARDHEIGHT):
             left, top = leftTopCoordsOfBox(boxx, boxy)
             if board[boxx][boxy][0][0] != 'WOW':
-                revealedBoxes[boxx][boxy] = True
+                #revealedBoxes[boxx][boxy] = True
                 pygame.draw.rect(DISPLAYSURF, BOXCOLOR, (left, top, BOXSIZE, BOXSIZE))
                 drawGirl(boxx, boxy)
             else:

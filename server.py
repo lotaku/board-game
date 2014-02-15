@@ -18,11 +18,12 @@ BOXSIZE=85
 GAPSIZE=10
 BOARDWIDTH = 2
 BOARDHEIGHT = 2
+NOBODY = 'WOW'
 usersNum = BOARDWIDTH * BOARDHEIGHT  # 计算可容纳的用户总数
 
 def getEveryEle(board):
     """
-     获得初始世界的每一个元素 组成新的一维数组，用于socket pack 传递
+     获得世界的每一个元素 组成新的一维数组，用于socket pack 传递
     """
     arrBoard = []
     for width in range(BOARDWIDTH):
@@ -60,7 +61,6 @@ def CreatNewWorld(bufunPacked):
             #column.append(userAndLocation)
         #board.append(column)
     #return board
-
 
 def getRandomizedBoard(): # V1.1
     """
@@ -101,9 +101,25 @@ class boardGameRequestHandler(BaseRequestHandler):
         userName = unpackedreceivedData[0]
         boxx = unpackedreceivedData[1]
         boxy = unpackedreceivedData[2]
-        board[boxx][boxy][0][0] = userName
-        board[boxx][boxy][1][0] = boxx
-        board[boxx][boxy][1][1] = boxy
+        if userName == 'xxx': # 客户端发送 用户名 xxx ，要求刷新世界
+            pass
+        elif boxx == 9999: # 退出游戏， 消除用户
+            for width in range(BOARDWIDTH):
+                for height in range(BOARDHEIGHT):
+                    if board[width][height][0][0] == userName:
+                        board[width][height][0][0] = NOBODY
+                        board[width][height][1][0] = 0
+                        board[width][height][1][1] = 0
+        else:
+            for width in range(BOARDWIDTH):
+                for height in range(BOARDHEIGHT):
+                    if board[width][height][0][0] == userName:
+                        board[width][height][0][0] = NOBODY
+                        board[width][height][1][0] = 0
+                        board[width][height][1][1] = 0
+            board[boxx][boxy][0][0] = userName
+            board[boxx][boxy][1][0] = boxx
+            board[boxx][boxy][1][1] = boxy
         arrBoard = getEveryEle(board)
         print arrBoard
         formatStrSendto = '!'+('3s1i1i'*usersNum)  # 打包 格式化字符串
