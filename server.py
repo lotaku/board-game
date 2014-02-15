@@ -1,14 +1,19 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
+#import SocketServer
+#SocketServer.ThreadingUDPServer
+#SocketServer.threading
+#, ForkingUDPServer
 from SocketServer import UDPServer, \
         DatagramRequestHandler, \
         ForkingMixIn, \
-        BaseRequestHandler #, ForkingUDPServer
+        BaseRequestHandler, \
+        ThreadingUDPServer, \
+        threading
 import struct
 
-import random
-import pprint
+#import random
+#import pprint
 import copy
 
 board = []
@@ -16,8 +21,8 @@ WINDOWWIDTH = 680
 WINDOWHEIGHT=580
 BOXSIZE=85
 GAPSIZE=10
-BOARDWIDTH = 2
-BOARDHEIGHT = 2
+BOARDWIDTH = 6
+BOARDHEIGHT = 4
 NOBODY = 'WOW'
 usersNum = BOARDWIDTH * BOARDHEIGHT  # 计算可容纳的用户总数
 
@@ -127,8 +132,9 @@ class boardGameRequestHandler(BaseRequestHandler):
         worldPacked = struct.pack(formatStrSendto,*arrBoard)
         socket.sendto(worldPacked, self.client_address)
 
-class boardGameServer(UDPServer):
+#class boardGameServer(UDPServer):
 #class boardGameServer(ForkingMixIn, UDPServer):
+class boardGameServer(ThreadingUDPServer):
     allow_reuse_address = 1
 if __name__ == "__main__":
     serveraddr = ('', 51423)

@@ -7,7 +7,6 @@ import random,\
         struct,\
         time,\
         copy
-
 from SocketServer import UDPServer, \
         DatagramRequestHandler, \
         ForkingMixIn, \
@@ -21,8 +20,8 @@ WINDOWWIDTH = 680
 WINDOWHEIGHT=580
 BOXSIZE=85
 GAPSIZE=10
-BOARDWIDTH = 2
-BOARDHEIGHT = 2
+BOARDWIDTH = 6
+BOARDHEIGHT = 4
 revealedBoxes = []
 NOBODY = 'WOW'
 usersNum = BOARDWIDTH * BOARDHEIGHT  # 计算可容纳的用户总数
@@ -257,9 +256,14 @@ def EnterUserName(event):
     #pygame.display.update()
 def drawGirl(boxx, boxy):
     left, top = leftTopCoordsOfBox(boxx, boxy)
-    DISPLAYSURF.blit(catImg, (left,top))
-    #revealedBoxes = generateRevealedBoxesData(False)
-
+    DISPLAYSURF.blit(catImg, (left+20,top))
+    userName = board[boxx][boxy][0][0]
+#def drawGirlname(userName):
+    fontObj = pygame.font.Font('freesansbold.ttf', 22)
+    #userNameSurfaceObj = fontObj.render(userName, True, GREEN, NAVYBLUE) # 设置字体背景色
+    userNameSurfaceObj = fontObj.render(userName, True, NAVYBLUE)
+    DISPLAYSURF.blit(userNameSurfaceObj, (left+20,top+60))
+        #pygame.display.update()
 def drawHighlightBox(boxx, boxy):
     left, top = leftTopCoordsOfBox(boxx, boxy)
     #pygame.draw.rect(DISPLAYSURF, HIGHLIGHTCOLOR, (left - 5, top - 5, BOXSIZE + 10, BOXSIZE + 10), 4)
@@ -291,7 +295,7 @@ def getBoxAtPixel(x, y):
             #pygame.draw.rect(DISPLAYSURF, BOXCOLOR, (left, top, BOXSIZE, BOXSIZE))
 
 def drawBoard(board):
-    global revealedBoxes
+    #global revealedBoxes
     # Draws all of the boxes in their covered or revealed state.
     for boxx in range(BOARDWIDTH):
         for boxy in range(BOARDHEIGHT):
