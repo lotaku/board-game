@@ -117,8 +117,9 @@ def handlePackets():
                 inputs.append(client_socket)
                 message_queues[client_socket] = Queue.Queue()
             else:
-                data = readable.recv(1024)
+                data = readable.recv(4096)
                 if data :
+                    print '数据长度：', len(data)
                     print 'received ', data , 'from ', readable.getpeername()
                     message_queues[readable].put(data)
                     if readable not in outputs :
