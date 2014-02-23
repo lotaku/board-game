@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from player_manager import playerManager
+#from tcp_server import tcpServer
 class RecvPacket:
 
     def __init__(self,buffer):
@@ -34,6 +36,10 @@ class SendPacket:
         buffer=chr(length/0x100)+chr(length%0x100)+self.buffer
         player.sendData+=buffer
 
-    def sendCplayers(self,player):
-        pass
+    def send2Cplayers(self,player):
+        length =len(self.buffer)
+        buffer=chr(length/0x100)+chr(length%0x100)+self.buffer
+        player.broadbuff+=buffer
+        #tcpServer.broadcast(player)
+
 

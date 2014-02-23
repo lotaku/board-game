@@ -12,6 +12,7 @@ class Player:
         self.y=0
     def enterWorld(self):
         self.gs2cEnterWorld()
+        #self.gs2cPlayersEnterWorld()
     def gs2cEnterWorld(self):
         packet=SendPacket(1)
         packet.packInt(self.x)
@@ -26,12 +27,21 @@ class Player:
         packet=SendPacket(2)
         packet.packInt(self.x)
         packet.packInt(self.y)
+        packet.packString(self.name)
         packet.send(self)
+    def gs2cPlayersEnterWorld(self):
+        packet=SendPacket(3)
+        packet.packInt(self.x)
+        packet.packInt(self.y)
+        packet.packString(self.name)
+        packet.send2Cplayers(self)
+
 
 def c2gsEnterWorld(player,packet):
     name = packet.unpackString()
     player.creat(name)
     player.enterWorld()
+    player.gs2cPlayersEnterWorld()
 def c2gsPlayerMove(player,packet):
     x=packet.unpackInt()
     y=packet.unpackInt()

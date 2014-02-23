@@ -46,6 +46,9 @@ player=Player()
 def gs2cEnterWorld(player,packet):
     x=packet.unpackInt()
     y=packet.unpackInt()
+    #name = packet.unpackString()
+    #player.name = name
+    #print "解压用户名：",name
     player.enterWorld(x,y)
     playerManager.add(player)
     print "c 收到 s 对： 进入世界的回应 ，获得初始位置，x，y",x,y
@@ -56,5 +59,18 @@ def gs2cPlayerMove(player,packet):
     player.move(x,y)
     playerManager.add(player)
     print "c 收到 s 对： 请求移动的回应 ，获得新位置，x，y",x,y
+
+def gs2cPlayerEnterWorld(player,packet):
+    """
+    新用户加入
+    """
+    x = packet.unpackInt()
+    y = packet.unpackInt()
+    name =packet.unpackString()
+    newPlayer = Player()
+    newPlayer.create(name)
+    newPlayer.enterWorld(x,y)
+    playerManager.add(newPlayer)
+
 
 

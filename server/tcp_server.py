@@ -57,6 +57,7 @@ class TcpServer:
         remote.setblocking(0)
         player=Player(remote)
         player.sendData = ''
+        player.broadbuff=""
         playerManager.add(player)
         self.remoteSockets.append(remote)
 
@@ -94,12 +95,30 @@ class TcpServer:
     def writeRemote(self,writeSocket):
         print "正在writeRemot"
         player = playerManager.get(writeSocket)
+
         data = player.sendData
         amount=writeSocket.send(data)
         player.sendData=data[amount:]
-        if not len(player.sendData):
+
+        #dataBroad= player.broadbuff
+        #amount=writeSocket.send(dataBroad)
+        #player.broadbuff=dataBroad[amount:]
+
+        if not len(player.sendData) and not len(player.broadbuff):
             self.writeRemoteSockets.remove(writeSocket)
 
+    def broadcast(self,player):
+        data= player.broadcast
+        for cPlayersSocket, _ in playerManager.socketPlayer.items():
+            while len(data):
+                amount=cPlayersSocket.send(data)
+                data=data[amount:]
+
+        #for cPlayersSocket, _ in playerManager.socketPlayer.items():
+            #amount=cPlayersSocket.send(data)
+            #player.sendData=data[amount:]
+            #if not len(player.sendData):
+                #self.writeRemoteSockets.remove(writeSocket)
 
 
 

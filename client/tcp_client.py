@@ -61,8 +61,7 @@ class TcpClient:
                         packetLength=contentBeginIndex+contentLength
                     else:
                         break
-
-                    self.recvData=data
+                self.recvData=data
         else:
             pass
 
