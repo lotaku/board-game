@@ -64,7 +64,7 @@ def main():
     pygame.display.set_caption('Board Game')
     DISPLAYSURF.fill(NAVYBLUE)
 
-    revealedBoxes= generateRevealedBoxesData(False)
+    #revealedBoxes= generateRevealedBoxesData(False)
 
     pygame.display.update()
 
@@ -81,7 +81,6 @@ def main():
             elif event.type == pygame.KEYDOWN and event.key == K_RETURN:
                 board = getRandomizedBoard()
                 board, closeLoginWindow = enterWorld(userName)
-
         if closeLoginWindow:
             break
         pygame.display.update()
@@ -180,7 +179,7 @@ def getRandomizedBoard(): # V1.1
     global board
     #i=0
     board = []
-    userAndLocation = [['WOW'], [0, 0]]
+    userAndLocation = [[NOBODY], [0, 0]]
     #userAndLocation = [[i], [i+1, i+2]]
     for x in range(BOARDWIDTH):
         column = []
@@ -286,22 +285,11 @@ def getBoxAtPixel(x, y):
                 return (boxx, boxy)
     return (None, None)
 
-
-#def drawBoard():
-    ## Draws all of the boxes at the beginning of game.
-    #for boxx in range(BOARDWIDTH):
-        #for boxy in range(BOARDHEIGHT):
-            #left, top = leftTopCoordsOfBox(boxx, boxy)
-            #pygame.draw.rect(DISPLAYSURF, BOXCOLOR, (left, top, BOXSIZE, BOXSIZE))
-
 def drawBoard(board):
-    #global revealedBoxes
-    # Draws all of the boxes in their covered or revealed state.
     for boxx in range(BOARDWIDTH):
         for boxy in range(BOARDHEIGHT):
             left, top = leftTopCoordsOfBox(boxx, boxy)
             if board[boxx][boxy][0][0] != 'WOW':
-                #revealedBoxes[boxx][boxy] = True
                 pygame.draw.rect(DISPLAYSURF, BOXCOLOR, (left, top, BOXSIZE, BOXSIZE))
                 drawGirl(boxx, boxy)
             else:

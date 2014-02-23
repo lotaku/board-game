@@ -97,15 +97,10 @@ class boardGameRequestHandler(BaseRequestHandler):
         receivedData = self.request[0]#.strip()
         socket = self.request[1]
         formatStr = '!'+'3s1i1i'  # 打包 格式化字符串
-        #formatStr = "!3s4s4s"
         unpackedreceivedData = struct.unpack(formatStr,receivedData)
-        #print "{} wrote:".format(self.client_address[0])
-        #print "{} wrote:".format(self.client_address[1])
-        #print "Wellcome {}.".format(unpackedreceivedData)
-        #socket.sendto(data.upper(), self.client_address)
         userName = unpackedreceivedData[0]
-        boxx = unpackedreceivedData[1]
-        boxy = unpackedreceivedData[2]
+        boxx     = unpackedreceivedData[1]
+        boxy     = unpackedreceivedData[2]
         if userName == 'xxx': # 客户端发送 用户名 xxx ，要求刷新世界
             pass
         elif boxx == 9999: # 退出游戏， 消除用户
