@@ -20,9 +20,11 @@ class Player:
         self.y=y
         gwdata.drawPlayer(self)
     def move(self,x,y):
+        print "点击移动前： 消除旧位置的 player"
         gwdata.erasePlayer(self)
         self.x=x
         self.y=y
+        print "点击移动 player"
         gwdata.drawPlayer(self)
 
     def c2gsEnterWorld(self):
@@ -53,6 +55,6 @@ def gs2cPlayerMove(player,packet):
     y=packet.unpackInt()
     player.move(x,y)
     playerManager.add(player)
-    #print "c 收到 s 对： 请求移动的回应 ，获得新位置，x，y",x,y
+    print "c 收到 s 对： 请求移动的回应 ，获得新位置，x，y",x,y
 
 

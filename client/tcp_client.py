@@ -68,8 +68,10 @@ class TcpClient:
 
     def write(self):
         data=self.sendData
-        amount=self.connectSocket.send(data)
-        self.sendData=data[amount:]
+        if len(data):
+            amount=self.connectSocket.send(data)
+            print "已发送数据：", amount
+            self.sendData=data[amount:]
 
 tcpClient=TcpClient()
 

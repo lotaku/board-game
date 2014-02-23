@@ -98,6 +98,8 @@ def erasePlayer(player):
     pygame.draw.rect(DISPLAYSURF, BOXCOLOR, (left, top, BOXSIZE, BOXSIZE))
 
 def drawPlayer(player):
+    global DISPLAYSURF
+    print "新的x：",player.x
     left, top = leftTopCoordsOfBox(player.x,player.y)
     pygame.draw.rect(DISPLAYSURF, BOXCOLOR, (left, top, BOXSIZE, BOXSIZE))
     #drawGirl(player)
@@ -105,6 +107,8 @@ def drawPlayer(player):
     fontObj = pygame.font.Font('freesansbold.ttf', 22)
     userNameSurfaceObj = fontObj.render(player.name, True, NAVYBLUE)
     DISPLAYSURF.blit(userNameSurfaceObj, (left+20,top+60))
+    #print "刷新测试："
+    #pygame.display.update()
 
 def drawPlayerTemp(player,boxx,boxy):
     global BOXX_MOVE_TEMP,BOXY_MOVE_TEMP
@@ -115,7 +119,7 @@ def drawPlayerTemp(player,boxx,boxy):
     pygame.draw.rect(DISPLAYSURF, BOXCOLOR, (left, top, BOXSIZE, BOXSIZE))
     #显示这次的临时player
     left, top = leftTopCoordsOfBox(boxx,boxy)
-    pygame.draw.rect(DISPLAYSURF, BOXCOLOR, (left, top, BOXSIZE, BOXSIZE))
+    #pygame.draw.rect(DISPLAYSURF, BOXCOLOR, (left, top, BOXSIZE, BOXSIZE))
     #drawGirl(player)
     DISPLAYSURF.blit(girlImg, (left+20,top))
     fontObj = pygame.font.Font('freesansbold.ttf', 22)
@@ -154,22 +158,28 @@ def playermove():
     #mouseClicked = False
     mousex = 0
     mousey = 0
-    print "play函数，获取event"
+    #print "play函数，获取event"
     for event in pygame.event.get():
         if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
             pygame.quit()
             sys.exit()
-        elif event.type == MOUSEMOTION:
-            mousex,mousey =event.pos
-        #elif event.type ==
-    boxx,boxy = getBoxAtPixel(mousex,mousey)
-    if boxx !=None and boxy != None:
-        for playerOther in playerManager.remotePlayers:
-            x = playerOther.x
-            y = playerOther.y
-            if boxx != x or boxy != y:
-                print "调用drawPlaye"
-                drawPlayerTemp(player.player,boxx,boxy)
-                #drawPlayer(player.player)
-                #pygame.display.update()
+        #elif event.type == MOUSEMOTION:
+            #mousex,mousey =event.pos
+            #boxx,boxy = getBoxAtPixel(mousex,mousey)
+            ##确定移动前，临时显示player
+            #if boxx !=None and boxy != None:
+                #for _,playerOther in playerManager.remotePlayers.items():
+                    #x = playerOther.x
+                    #y = playerOther.y
+                    #if boxx != x or boxy != y:
+                        ##print "调用drawPlaye"
+                        #drawPlayerTemp(player.player,boxx,boxy)
+
+        elif event.type == MOUSEBUTTONUP:
+            mousex,mousey = event.pos
+            boxx,boxy = getBoxAtPixel(mousex,mousey)
+            #确定移动前，临时显示player
+            if boxx !=None and boxy != None:
+                player.player.c2gsPlayerMove(boxx,boxy)
+
 

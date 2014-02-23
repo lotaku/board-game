@@ -16,7 +16,7 @@ class SendPacket:
         length=len(self.buffer)
         buffer=chr(length/0x100)+chr(length%0x100)+self.buffer
         tcp_client.tcpClient.sendData+=buffer
-        print '这个是请求进入世界的buffer：',tcp_client.tcpClient.sendData
+        print '以把新数据添加到:  tcp_client.tcpClient.sendData+=buffer'
 
 
 
