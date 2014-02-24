@@ -37,30 +37,48 @@ class Player:
         packet=send_packet.SendPacket(2)
         packet.packInt(x)
         packet.packInt(y)
-        #packet.packString(self.name)
+        packet.packString(self.name)
         packet.send()
         #print 'c发包：请求移动'
-
+    def c2gsExitGame(self):
+        packet=send_packet.SendPacket(0)
+        packet.packInt(self.x)
+        packet.packInt(self.y)
+        packet.packString(self.name)
+        packet.send()
+    def exitGame(self):
+        print "点击移动前： 消除旧位置的 player"
+        gwdata.erasePlayer(self)
+        del playerManager.remotePlayers[self.name]
 player=Player()
 
 def gs2cEnterWorld(player,packet):
     x=packet.unpackInt()
     y=packet.unpackInt()
-    #name = packet.unpackString()
-    #player.name = name
-    #print "解压用户名：",name
+    name = packet.unpackString()
+    player.name = name
+    print "解压用户名：",name
     player.enterWorld(x,y)
     playerManager.add(player)
     print "c 收到 s 对： 进入世界的回应 ，获得初始位置，x，y",x,y
 
 def gs2cPlayerMove(player,packet):
+#====单客户端代码====
+    #x=packet.unpackInt()
+    #y=packet.unpackInt()
+    #player.move(x,y)
+    #playerManager.add(player)
+    #print "c 收到 s 对： 请求移动的回应 ，获得新位置，x，y",x,y
+#====多客户端代码====
     x=packet.unpackInt()
     y=packet.unpackInt()
+    name =packet.unpackString()
+    player = playerManager.get(name)
     player.move(x,y)
     playerManager.add(player)
     print "c 收到 s 对： 请求移动的回应 ，获得新位置，x，y",x,y
 
-def gs2cPlayerEnterWorld(player,packet):
+def gs2cOtherEnterWorld(player,packet):
     """
     新用户加入
     """
@@ -73,4 +91,31 @@ def gs2cPlayerEnterWorld(player,packet):
     playerManager.add(newPlayer)
 
 
+def gs2cOtherMove(player,packet):
+    """
+    其他客户端用户移动
+    """
+    x = packet.unpackInt()
+    y = packet.unpackInt()
+    name =packet.unpackString()
+    playerOther = playerManager.get(name)
+    playerOther.move(x,y)
+    playerManager.add(playerOther)
+
+def gs2cExistingPlayers(player,packet):
+    """
+    刚进入世界，获取其他用户的资料
+    """
+    x = packet.unpackInt()
+    y = packet.unpackInt()
+    name =packet.unpackString()
+    newPlayer = Player()
+    newPlayer.create(name)
+    newPlayer.enterWorld(x,y)
+    playerManager.add(newPlayer)
+
+def gs2cOtherExitGame(player,packet):
+    name = packet.unpackString()
+    playerToExit =playerManager.remotePlayers[name]
+    playerToExit.exitGame
 

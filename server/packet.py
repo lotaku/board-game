@@ -36,10 +36,9 @@ class SendPacket:
         buffer=chr(length/0x100)+chr(length%0x100)+self.buffer
         player.sendData+=buffer
 
-    def send2Cplayers(self,player):
+    def sendOther(self,player):
         length =len(self.buffer)
         buffer=chr(length/0x100)+chr(length%0x100)+self.buffer
-        player.broadbuff+=buffer
-        #tcpServer.broadcast(player)
+        player.broadBuff+=buffer
 
 

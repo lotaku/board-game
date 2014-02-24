@@ -57,7 +57,7 @@ class TcpClient:
                     dataLength=len(data)
 
                     if dataLength>contentBeginIndex:
-                        contentLength=ord(data[lengthBeginIndex]*0x100)+ord(data[lengthBeginIndex+1])
+                        contentLength=ord(data[lengthBeginIndex])*0x100+ord(data[lengthBeginIndex+1])
                         packetLength=contentBeginIndex+contentLength
                     else:
                         break

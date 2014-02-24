@@ -41,6 +41,11 @@ class TcpServer:
                     self.handlePackets()
             for write in writes:
                 self.writeRemote(write)
+            # 通知其他客户端
+            for write in writes:
+                self.writeOtherRemote(write)
+
+
     def handlePackets(self):
         print ' 正在handlePackets'
         for remote,buffers in self.buffers.items():
@@ -56,8 +61,8 @@ class TcpServer:
         remote,address=self.listenSocket.accept()
         remote.setblocking(0)
         player=Player(remote)
-        player.sendData = ''
-        player.broadbuff=""
+        #player.sendData = ''
+        #player.broadBuff=""
         playerManager.add(player)
         self.remoteSockets.append(remote)
 
@@ -65,7 +70,8 @@ class TcpServer:
         print "正在readRemoteData"
         data=self.remoteData.get(readSocket,'')+readSocket.recv(1024)
         if data:
-            self.writeRemoteSockets.append(readSocket)
+            if readSocket not in self.writeRemoteSockets:
+                self.writeRemoteSockets.append(readSocket)
             dataLength=len(data)
             print "recv"
             for char in data:
@@ -87,12 +93,13 @@ class TcpServer:
                         packetLength=contentBeginIndex+contentLength
                     else:
                         break
-                self.remoteData[readSocket]=data
-                print self.buffers
+            self.remoteData[readSocket]=data
+            print self.buffers
         else:
             self.remoteSockets.remove(readSocket)
 
     def writeRemote(self,writeSocket):
+        #=====单客户端代码====
         print "正在writeRemot"
         player = playerManager.get(writeSocket)
 
@@ -100,19 +107,29 @@ class TcpServer:
         amount=writeSocket.send(data)
         player.sendData=data[amount:]
 
-        #dataBroad= player.broadbuff
-        #amount=writeSocket.send(dataBroad)
-        #player.broadbuff=dataBroad[amount:]
+        #if not len(player.sendData) and True:
+        if not len(player.sendData) and not len(player.broadBuff):# 为“广播”添加一个条件
+            try:
+                self.writeRemoteSockets.remove(writeSocket)
+            except:
+                pass
+        #======多客户端广播代码,==想法错误。。====
+        #print "正在writeRemot"
+        #player = playerManager.get(writeSocket)
+        #data = player.sendData
+        #for cPlayersSocket, _ in playerManager.socketPlayer.items():
+            #amount=writeSocket.send(data)
+            #player.sendData=data[amount:]
 
-        if not len(player.sendData) and not len(player.broadbuff):
-            self.writeRemoteSockets.remove(writeSocket)
+        #if not len(player.sendData) and True:
+            #self.writeRemoteSockets.remove(writeSocket)
 
-    def broadcast(self,player):
-        data= player.broadcast
-        for cPlayersSocket, _ in playerManager.socketPlayer.items():
-            while len(data):
-                amount=cPlayersSocket.send(data)
-                data=data[amount:]
+    #def broadcast(self,player):
+        #data= player.broadcast
+        #for cPlayersSocket, _ in playerManager.socketPlayer.items():
+            #while len(data):
+                #amount=cPlayersSocket.send(data)
+                #data=data[amount:]
 
         #for cPlayersSocket, _ in playerManager.socketPlayer.items():
             #amount=cPlayersSocket.send(data)
@@ -121,6 +138,27 @@ class TcpServer:
                 #self.writeRemoteSockets.remove(writeSocket)
 
 
+
+    def writeOtherRemote(self,writeSocket):
+            #======多客户端广播代码,==想法错误。。====
+            print "正在writeRemot"
+
+            player = playerManager.get(writeSocket)
+            data = player.broadBuff
+
+            for OtherSocket, _ in playerManager.socketPlayer.items():
+                if len(playerManager.socketPlayer)<=1:
+                    player.broadBuff=''
+                else:
+                    if OtherSocket != writeSocket:
+                        amount=OtherSocket.send(data)
+                        player.broadBuff=data[amount:]
+
+            if not len(player.sendData) and not len(player.broadBuff):
+                try:
+                    self.writeRemoteSockets.remove(writeSocket,'')
+                except:
+                    pass
 
 
 

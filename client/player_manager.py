@@ -10,5 +10,8 @@ class PlayerManager:
     def remove(self,player):
         #self.remotePlayers.remove(player)
         del self.remotePlayers[player.name]
+    def get(self,name):
+        player = self.remotePlayers[name]
+        return player
 
 playerManager=PlayerManager()

@@ -10,6 +10,7 @@ from player_manager import playerManager
 
 
 
+EXITKEY=0
 FPS=30
 WINDOWWIDTH = 680
 WINDOWHEIGHT=580
@@ -154,6 +155,7 @@ def getBoxAtPixel(x, y):
     return (None, None)
 
 def playermove():
+    global EXITKEY
     #DISPLAYSURF.fill(BGCOLOR)
     #mouseClicked = False
     mousex = 0
@@ -161,8 +163,8 @@ def playermove():
     #print "play函数，获取event"
     for event in pygame.event.get():
         if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
-            pygame.quit()
-            sys.exit()
+            player.player.c2gsExitGame()
+            EXITKEY=1
         #elif event.type == MOUSEMOTION:
             #mousex,mousey =event.pos
             #boxx,boxy = getBoxAtPixel(mousex,mousey)
@@ -181,5 +183,11 @@ def playermove():
             #确定移动前，临时显示player
             if boxx !=None and boxy != None:
                 player.player.c2gsPlayerMove(boxx,boxy)
+        #elif exitKey==1:
+            #pygame.quit()
+            #sys.exit()
 
-
+def exitGame():
+    if EXITKEY:
+        pygame.QUIT
+        sys.exit()
