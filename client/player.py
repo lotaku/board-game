@@ -49,7 +49,8 @@ class Player:
     def exitGame(self):
         print "点击移动前： 消除旧位置的 player"
         gwdata.erasePlayer(self)
-        del playerManager.remotePlayers[self.name]
+        playerManager.remove(self)
+        #del playerManager.remotePlayers[self.name]
 player=Player()
 
 def gs2cEnterWorld(player,packet):
@@ -117,5 +118,5 @@ def gs2cExistingPlayers(player,packet):
 def gs2cOtherExitGame(player,packet):
     name = packet.unpackString()
     playerToExit =playerManager.remotePlayers[name]
-    playerToExit.exitGame
+    playerToExit.exitGame()
 

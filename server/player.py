@@ -8,6 +8,7 @@ class Player:
         self.socket    = socket
         self.sendData  = ''
         self.broadBuff = ''
+        self.exitKey = 0
     def creat(self,name):
         self.name=name
         self.x=0
@@ -57,6 +58,7 @@ class Player:
             packet.send(self)
     def gs2cOtherExitGame(self):
         #for _,playerOther in playerManager.socketPlayer.items():
+        self.exitKey=1
         packet=SendPacket(0)
         packet.packString(self.name)
         packet.sendOther(self)

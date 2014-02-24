@@ -41,6 +41,7 @@ class TcpServer:
                     self.handlePackets()
             for write in writes:
                 self.writeRemote(write)
+
             # 通知其他客户端
             for write in writes:
                 self.writeOtherRemote(write)
@@ -157,6 +158,17 @@ class TcpServer:
             if not len(player.sendData) and not len(player.broadBuff):
                 try:
                     self.writeRemoteSockets.remove(writeSocket,'')
+                except:
+                    pass
+            if player.exitKey:
+                #用户退出游戏
+                #从服务器消除该用户的信息
+                #del playerManager.socketPlayer[player.socket]
+                playerManager.remove(player)
+                #移除该用户的socket
+                try:
+                    #self.writeRemoteSockets.remove(writeSocket,'')
+                    self.writeRemoteSockets.remove(writeSocket)
                 except:
                     pass
 

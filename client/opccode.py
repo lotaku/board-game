@@ -9,6 +9,7 @@ handler={
     #2:playerM.gs2cPlayerMove,
     #1:player.player.gs2cEnterWorld,
     #2:player.player.gs2cPlayerMove,
+    0:player.gs2cOtherExitGame,
     1:player.gs2cEnterWorld,
     2:player.gs2cPlayerMove,
     3:player.gs2cOtherEnterWorld,
