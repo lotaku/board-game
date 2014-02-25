@@ -6,7 +6,7 @@ import sys
 import player
 from pygame.locals import *
 from player_manager import playerManager
-
+import time
 
 
 
@@ -189,5 +189,6 @@ def playermove():
 
 def exitGame():
     if EXITKEY:
+        #time.sleep(3)
         pygame.QUIT
         sys.exit()
