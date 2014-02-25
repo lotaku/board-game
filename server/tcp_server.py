@@ -100,48 +100,35 @@ class TcpServer:
             self.remoteSockets.remove(readSocket)
 
     def writeRemote(self,writeSocket):
-        #=====单客户端代码====
+        #=== 兼顾多客户端====
+        removeKey = 1
         print "正在writeRemot"
-        player = playerManager.get(writeSocket)
-
-        data = player.sendData
-        amount=writeSocket.send(data)
-        player.sendData=data[amount:]
-
-        #if not len(player.sendData) and True:
-        if not len(player.sendData) and not len(player.broadBuff):# 为“广播”添加一个条件
+        for playerSocket,player in playerManager.socketPlayer.items():
+            data = player.sendData
+            amount=playerSocket.send(data)
+            player.sendData=data[amount:]
+            if len(player.sendData):
+                removeKey = 0 # 还不能把 writeSocket 从 select write 移除
+        if removeKey ==1 :
             try:
                 self.writeRemoteSockets.remove(writeSocket)
             except:
                 pass
-        #======多客户端广播代码,==想法错误。。====
+        #=====单客户端代码====
         #print "正在writeRemot"
         #player = playerManager.get(writeSocket)
         #data = player.sendData
-        #for cPlayersSocket, _ in playerManager.socketPlayer.items():
-            #amount=writeSocket.send(data)
-            #player.sendData=data[amount:]
-
-        #if not len(player.sendData) and True:
-            #self.writeRemoteSockets.remove(writeSocket)
-
-    #def broadcast(self,player):
-        #data= player.broadcast
-        #for cPlayersSocket, _ in playerManager.socketPlayer.items():
-            #while len(data):
-                #amount=cPlayersSocket.send(data)
-                #data=data[amount:]
-
-        #for cPlayersSocket, _ in playerManager.socketPlayer.items():
-            #amount=cPlayersSocket.send(data)
-            #player.sendData=data[amount:]
-            #if not len(player.sendData):
+        #amount=writeSocket.send(data)
+        #player.sendData=data[amount:]
+        ##if not len(player.sendData) and True:
+        #if not len(player.sendData) and not len(player.broadBuff):# 为“广播”添加一个条件
+            #try:
                 #self.writeRemoteSockets.remove(writeSocket)
-
-
+            #except:
+                #pass
 
     def writeOtherRemote(self,writeSocket):
-            #======多客户端广播代码,==想法错误。。====
+            #======多客户端广播代码,多加一个player.buff，prim 说不用，都挂在不同player的sendData后面就行====
             print "正在writeRemot"
 
             player = playerManager.get(writeSocket)

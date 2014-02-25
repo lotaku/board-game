@@ -37,11 +37,17 @@ class Player:
         packet.packString(self.name)
         packet.send(self)
     def gs2cOhterEnterWorld(self):
-        packet=SendPacket(3)
-        packet.packInt(self.x)
-        packet.packInt(self.y)
-        packet.packString(self.name)
-        packet.sendOther(self)
+        #packet=SendPacket(3)
+        #packet.packInt(self.x)
+        #packet.packInt(self.y)
+        #packet.packString(self.name)
+        #packet.sendOther(self)
+        for _,playerOther in playerManager.socketPlayer.items():
+            packet=SendPacket(3)
+            packet.packInt(self.x)
+            packet.packInt(self.y)
+            packet.packString(self.name)
+            packet.send(playerOther)
     def gs2cOtherMove(self):
         packet=SendPacket(4)
         packet.packInt(self.x)
@@ -50,6 +56,7 @@ class Player:
         packet.sendOther(self)
 
     def gs2cExistingPlayers(self):
+        """S将其他玩家的x，y ，name 发给 刚刚加入的 player"""
         for _,playerOther in playerManager.socketPlayer.items():
             packet=SendPacket(5)
             packet.packInt(playerOther.x)
