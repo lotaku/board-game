@@ -42,9 +42,9 @@ class TcpServer:
             for write in writes:
                 self.writeRemote(write)
 
-            # 通知其他客户端
-            for write in writes:
-                self.writeOtherRemote(write)
+            ## 通知其他客户端
+            #for write in writes:
+                #self.writeOtherRemote(write)
 
 
     def handlePackets(self):
@@ -69,7 +69,11 @@ class TcpServer:
 
     def readRemoteData(self,readSocket):
         print "正在readRemoteData"
-        data=self.remoteData.get(readSocket,'')+readSocket.recv(1024)
+        #data=self.remoteData.get(readSocket,'')+readSocket.recv(1024)
+        try:
+            data=self.remoteData.get(readSocket,'')+readSocket.recv(1024)
+        except:
+            data=self.remoteData.get(readSocket,'')
         if data:
             if readSocket not in self.writeRemoteSockets:
                 self.writeRemoteSockets.append(readSocket)
@@ -104,11 +108,24 @@ class TcpServer:
         removeKey = 1
         print "正在writeRemot"
         for playerSocket,player in playerManager.socketPlayer.items():
-            data = player.sendData
+            data = player.sendData # 由于writeSoket关联的玩家，有操作，需要通知其它player，其他player.sendData 后面的包， 要全部发完，才能把 writeSocket 从 select 的write 里面移除
             amount=playerSocket.send(data)
             player.sendData=data[amount:]
+            if player.exitKey:
+                #用户退出游戏
+                #从服务器消除该用户的信息
+                #del playerManager.socketPlayer[player.socket]
+                playerManager.remove(player)
+                #移除该用户的socket
+                try:
+                    #self.writeRemoteSockets.remove(writeSocket,'')
+                    self.writeRemoteSockets.remove()
+                except:
+                    pass
+
             if len(player.sendData):
                 removeKey = 0 # 还不能把 writeSocket 从 select write 移除
+
         if removeKey ==1 :
             try:
                 self.writeRemoteSockets.remove(writeSocket)

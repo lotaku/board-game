@@ -49,11 +49,17 @@ class Player:
             packet.packString(self.name)
             packet.send(playerOther)
     def gs2cOtherMove(self):
-        packet=SendPacket(4)
-        packet.packInt(self.x)
-        packet.packInt(self.y)
-        packet.packString(self.name)
-        packet.sendOther(self)
+        for _,playerOther in playerManager.socketPlayer.items():
+            packet=SendPacket(4)
+            packet.packInt(self.x)
+            packet.packInt(self.y)
+            packet.packString(self.name)
+            packet.send(playerOther)
+        #packet=SendPacket(4)
+        #packet.packInt(self.x)
+        #packet.packInt(self.y)
+        #packet.packString(self.name)
+        #packet.sendOther(self)
 
     def gs2cExistingPlayers(self):
         """S将其他玩家的x，y ，name 发给 刚刚加入的 player"""
@@ -64,15 +70,16 @@ class Player:
             packet.packString(playerOther.name)
             packet.send(self)
     def gs2cOtherExitGame(self):
-        #for _,playerOther in playerManager.socketPlayer.items():
         self.exitKey=1
-        packet=SendPacket(0)
-        packet.packString(self.name)
-        packet.sendOther(self)
+        for _,playerOther in playerManager.socketPlayer.items():
+            packet=SendPacket(0)
+            packet.packString(self.name)
+            packet.send(playerOther)
 
-        #del playerManager.socketPlayer[self.socket]
-
-
+        #self.exitKey=1
+        #packet=SendPacket(0)
+        #packet.packString(self.name)
+        #packet.sendOther(self)
 def c2gsEnterWorld(player,packet):
     name = packet.unpackString()
     player.creat(name)
