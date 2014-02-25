@@ -28,7 +28,7 @@ class Player:
         self.x=newX
         self.y=newY
         self.gs2cPlayerMove()
-        self.gs2cExistingPlayers()
+        #self.gs2cExistingPlayers()
         self.gs2cOtherMove()
     def gs2cPlayerMove(self):
         packet=SendPacket(2)
