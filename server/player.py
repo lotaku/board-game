@@ -2,7 +2,8 @@
 # encoding: utf-8
 from packet import SendPacket
 from player_manager import playerManager
-
+from team import team
+from team_manager import teamManager
 class Player:
     def __init__(self,socket):
         self.socket    = socket
@@ -65,6 +66,13 @@ class Player:
             packet=SendPacket(0)
             packet.packString(self.name)
             packet.send(playerOther)
+    def gs2cTeamCreate(self):
+        team.create(self)
+        teamManager.add(team)
+        packet=SendPacket(6)
+        packet.packString(self.name)
+        packet.send(self)
+
 def c2gsEnterWorld(player,packet):
     name = packet.unpackString()
     player.creat(name)
@@ -76,6 +84,8 @@ def c2gsPlayerMove(player,packet):
 
 def c2gsExitGame(player,packet):
     player.gs2cOtherExitGame()
-
+def c2gsTeamCreate(player,packet):
+    #name = packet.unpackString()
+    player.gs2cTeamCreate()
 
 
