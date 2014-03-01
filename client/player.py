@@ -3,12 +3,16 @@
 import send_packet
 from player_manager import playerManager
 import gwdata
+from team import team
+from team_manager import teamManager
+
 #from gwdata import
 
 class Player:
 
     def __init__(self):
         self.name=""
+        self.team=""
 
     def create(self,name):
         self.name=name
@@ -50,7 +54,18 @@ class Player:
         print "点击移动前： 消除旧位置的 player"
         gwdata.erasePlayer(self)
         playerManager.remove(self)
-        #del playerManager.remotePlayers[self.name]
+    def c2gsTeamCreate(self):
+        packet=send_packet.SendPacket(6)
+        packet.packString(self.name)
+        packet.send()
+
+    def teamCreate(self):
+        team.create(self)
+        #print '我是队长名:', team.caption
+        teamManager.add(team)
+        print team.member
+        gwdata.drawTeamMember()
+
 player=Player()
 
 def gs2cEnterWorld(player,packet):
@@ -119,4 +134,5 @@ def gs2cOtherExitGame(player,packet):
     name = packet.unpackString()
     playerToExit =playerManager.remotePlayers[name]
     playerToExit.exitGame()
-
+def gs2cTeamCreate(player,packet):
+    player.teamCreate()
