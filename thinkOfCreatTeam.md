@@ -59,8 +59,34 @@
         若同意，S 更新服务器队伍信息，发 11号包(广播) --> 包内容：player.name(队长),memberPlayer.name(队员)  # 通过队长获得 “队伍” team，team.caption = memberPlayer
         若决绝，S 发11号包给 C（player.name),不更新组信息，也不用广播
 
+5,右键点击
+
+    玩家 A ，B , 全功能菜单{0：邀请入队，1：申请入队，2：踢出玩家，3：转让队长,4:建立队伍，5：解散队伍}
+
+    A 右击 B：
+    if A is caption :
+        if B is caption:
+            菜单显示：都是队长，功能待定
+        elif B in A.team[]:
+            菜单显示：{0:剔除玩家,1:转让队长}
+        else:
+            菜单显示：{0：邀请入队}
+    else:#A 不是队长
+        if B is caption:
+            菜单显示：{0:申请入队，}
+        else:
+            菜单显示：都是普通玩家
+
+    A 右击 A：
+        if A is caption:
+            菜单显示：解散队伍
+        else:
+            菜单显示：创建队伍
 
 
+    操作过程模拟： A 右击 B » 获得菜单长度menuLen » (全功能菜单用字典固定KV对)
+    »画 固定宽*(固定行高*menuLen) 的 rect » 在rect上画出菜单文字(def maketext) 
+    »获取event.pos 对应的 菜单行 » currentMenuDict[菜单行] »执行对于的函数发收包
 
 
 
