@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 import player
-#from player import player
-
+import team
 #import player as playerM
 handler={
     #1:playerM.gs2cEnterWorld,
@@ -15,6 +14,8 @@ handler={
     3:player.gs2cOtherEnterWorld,
     4:player.gs2cOtherMove,
     5:player.gs2cExistingPlayers,
+    6:player.gs2cTeamCreate
+
         }
 
 def handlePacket(packet):
