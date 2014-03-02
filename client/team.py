@@ -9,6 +9,7 @@ class Team():
         self.caption = player.name
         self.name="TN"+player.name
         self.member.append(player.name)
+        player.caption=1
         player.team=self
     def add(self,player):
         self.member.append(player)

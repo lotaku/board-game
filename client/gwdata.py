@@ -8,7 +8,7 @@ from pygame.locals import *
 from player_manager import playerManager
 import time
 from team import team
-#from teamManager import teamManager
+from team_manager import teamManager
 
 
 EXITKEY=0
@@ -50,7 +50,7 @@ BOXCOLOR = WHITE
 HIGHLIGHTCOLOR = BLUE
 HAVE_DRAW_TEAM_MEMBER =0
 def loginWin():
-    global DISPLAYSURF, player,FONT_OBJ#team ,teamManager
+    global DISPLAYSURF, player,FONT_OBJ,localPlayerName,LOCAL_PLAYER#team ,teamManager
     pygame.init()
     #FPSCLOCK=pygame.time.Clock()
     FONT_OBJ = pygame.font.Font('freesansbold.ttf', 22)
@@ -71,6 +71,9 @@ def loginWin():
                 #enterPlayerName(player,event)
             elif event.type == pygame.KEYDOWN and event.key == K_RETURN:
                 player.player.c2gsEnterWorld()
+                playerManager.add(player.player)
+                localPlayerName=player.player.name
+                LOCAL_PLAYER=player.player
                 breakKey=1
         if breakKey:
             break
@@ -158,7 +161,9 @@ def getBoxAtPixel(x, y):
     return (None, None)
 
 def playermove():
-    global EXITKEY,MENUCURRENT
+    global EXITKEY,MENUCURRENT,MENUCURRENT_KEY,LOCAL_PLAYER
+    #print '所有玩家',playerManager.remotePlayers
+    LOCAL_PLAYER = playerManager.get(localPlayerName)
     mousex = 0
     mousey = 0
     for event in pygame.event.get():
@@ -177,26 +182,84 @@ def playermove():
                         ##print "调用drawPlaye"
                         #drawPlayerTemp(player.player,boxx,boxy)
         elif event.type == MOUSEBUTTONDOWN and not len(MENUCURRENT):
+            #玩家左击移动
             if event.button == 1:
                 mousex,mousey = event.pos
                 boxx,boxy = getBoxAtPixel(mousex,mousey)
                 if boxx !=None and boxy != None:
                     player.player.c2gsPlayerMove(boxx,boxy)
-            if event.button == 3:  # 鼠标右击
+            if event.button == 3:  # 鼠标右击,判断是否画出右键菜单
+                global LastBoxx,LastBoxy
                 mousex,mousey = event.pos
                 boxx,boxy = getBoxAtPixel(mousex,mousey)
                 if boxx != None and boxy != None:
-                    #todo:if 这个位置有玩家
-                    global LastBoxx,LastBoxy
-                    MENUCURRENT, LastBoxx,LastBoxy= drawCurrentMenu(boxx,boxy)
+                    #LOCAL_PLAYER=playerManager.get(LOCAL_PLAYER.name)
+                    #判断x,y 是否有玩家,并取得该玩家
+                    for _,playerUnderMouse in playerManager.remotePlayers.items():
+                        #print type(playerUnderMouse)
+                        print "人物的X:",playerUnderMouse.x
+                        if playerUnderMouse.x == LOCAL_PLAYER.x and playerUnderMouse.y == LOCAL_PLAYER.y:#右击player A 自己
+                            print '右键下是本人'
+                            #全功能菜单,初始化
+                            menuRightAll={
+                                    0:("TeamCreat",player.player.c2gsTeamCreate),\
+                                    1:("Invited","def1"),\
+                                    2:("kickedOut","def2"),\
+                                    3:("transferCaptain","def3"),\
+                                    4:("applyInto","def4"),\
+                                    5:("disband",player.player.c2gsTeamCreate),\
+                                        }
+                            #player:是本地玩家 A ,playerundermouse 右键下的玩家 B
+                            #if playerUnderMouse.x == player.player.x and playerUnderMouse.y == player.player.y:#右击player A 自己
+                            LOCAL_PLAYER = playerManager.get(localPlayerName)
+                            if LOCAL_PLAYER.iscaption:
+                            #if 1==1:
+                                #global MENUCURRENT_KEY
+                                print "画 解散队伍"
+                                MENUCURRENT_KEY=[5]
+                                print '菜单字典 所有 keys:',
+                                print MENUCURRENT_KEY
+                                for key in MENUCURRENT_KEY:
+                                    print "菜单字典的 key:",key
+                                    MENUCURRENT[key]=menuRightAll[key]
+                                LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
+                            else:
+                                print "画 创建队伍"
+                                MENUCURRENT_KEY=[0]
+                                print '菜单字典 所有 keys:',
+                                print MENUCURRENT_KEY
+                                for key in MENUCURRENT_KEY:
+                                    print "菜单字典的 key:",key
+                                    MENUCURRENT[key]=menuRightAll[key]
+                                print "菜单k:v  ",MENUCURRENT
+                                LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
+                            #else:#不是本人 player A
+                                ##判断两个玩家是否有一个队伍
+                                ##localPlayerTeam = teamManager.get(player.player)
+                                ##playerUnderMouseTeam  = teamManager.get(playerUnderMouse)
+                                #if player.player.iscaption: # A 是队长
+                                    #if playerUnderMouse.iscaption: #B 是队长
+                                        #print '都是队长功能待定'
+                                    #elif playerUnderMouse.name in localPlayerTeam.member:
+                                        ## B不是队长,并且在A 的队伍里
+                                        #print '获得当前右键菜单'
+                                        #for i in [2,3]:
+                                            #MENUCURRENT[i]=menuRightAll[i]
+                                        #LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
+                                #else:#player 不是队长
+                                    #if playerUnderMouse.iscaption:#B 是队长
+                                        #print "画 解散队伍"
+                                        #MENUCURRENT[5]=menuRightAll[5]
+                                        #LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
+                                    #else:#B 不是队长
+                                        #print "画 创建队伍"
+                                        #MENUCURRENT[0]=menuRightAll[0]
+                                        #LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
+
         elif event.type == MOUSEBUTTONDOWN and len(MENUCURRENT):
             if event.button == 1:
                 mousex,mousey = event.pos
-                mouseLClickOnCurrentMenu(MENUCURRENT, LastBoxx,LastBoxy,mousex,mousey)
-    #drawTeamMember() # 又一次设置了全局函数
-                #测试右键效果
-                #testFont,testRect = makeText("xxx",RED,BGCOLOR,10,10)
-                #DISPLAYSURF.blit(testFont, testRect)
+                MENUCURRENT = mouseLClickOnCurrentMenu(MENUCURRENT_KEY,MENUCURRENT, LastBoxx,LastBoxy,mousex,mousey)
 
 def exitGame():
     if EXITKEY:
@@ -218,29 +281,36 @@ def makeText(text,color,bgcolor,top,left):
     textRect.topleft=(top,left)
     return (textSurf,textRect)
 
-def drawCurrentMenu(boxx,boxy):
+def drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy):
+    """
+    右击,判断用户属性,画出对应的右键菜单
+    :return: menuCurrent,LastBoxx,LastBoxy
+    """
+    #画出菜单背景
     LastBoxx,LastBoxy = boxx,boxy
     left,top = leftTopCoordsOfBox(boxx+1, boxy)
     width =BOXSIZE
     height=BOXSIZE*2+GAPSIZE
     menuLineRect = pygame.draw.rect(DISPLAYSURF,RED,(left,top,width,height))
-    #获得当前菜单:
-    #menuCurrent={0:createTeam(),1:'def2'}
-    #menuCurrent={0:("TeamCreat",player.player.c2gsTeamCreate()),1:('menu2','def2')}
-    menuCurrent={0:("TeamCreat",player.player.c2gsTeamCreate),1:('menu2','def2')}
-    for i in range(len(menuCurrent)):
+    lenght= range(len(MENUCURRENT_KEY))
+    tempDict=zip(MENUCURRENT_KEY,lenght)
+    print tempDict
+    #for key,i in MENUCURRENT_KEY,lenght:
+    for key,i in tempDict:
         print '画菜单'
         menuLineHeight = BOXSIZE/2
-        menuLineSurf,menuLineRect = makeText(menuCurrent[i][0],WHITE,BGCOLOR,left,top+menuLineHeight*i)
+        menuLineSurf,menuLineRect = makeText(MENUCURRENT[key][0],WHITE,BGCOLOR,left,top+menuLineHeight*i)
         DISPLAYSURF.blit(menuLineSurf,menuLineRect)
-    return menuCurrent,LastBoxx,LastBoxy
-def mouseLClickOnCurrentMenu(menuCurrent, LastBoxx,LastBoxy,mousex,mousey):
+    return LastBoxx,LastBoxy
+def mouseLClickOnCurrentMenu(MENUCURRENT_KEY,menuCurrent, LastBoxx,LastBoxy,mousex,mousey):
+    """
+    鼠标点击在右键菜单上"""
     left,top = leftTopCoordsOfBox(LastBoxx+1, LastBoxy)
     width =BOXSIZE
     height=BOXSIZE*2+GAPSIZE
     menuRect = pygame.Rect(left,top,width,height)
     if menuRect.collidepoint(mousex,mousey):
-        for i in range(len(menuCurrent)):
+        for i in MENUCURRENT_KEY:
             menuLineHeight = BOXSIZE/2
             _,menuLineRect = makeText(menuCurrent[i][0],WHITE,BGCOLOR,left,top+menuLineHeight*i)
             if menuLineRect.collidepoint(mousex,mousey):
@@ -248,6 +318,19 @@ def mouseLClickOnCurrentMenu(menuCurrent, LastBoxx,LastBoxy,mousex,mousey):
                 menuCurrent[i][1]()
                 #print 'xxx',player.team.member
                 #pygame.time.wait(3000)
+    #重画菜单后面的背景+人物
+
+    for _,playerBehindRMenu in playerManager.remotePlayers.items():
+        for i in [1,2]:# 两行
+            for j in [1,2]: #两列
+                if playerBehindRMenu.x == left and  playerBehindRMenu.y == top:
+                    drawPlayer(playerBehindRMenu)
+                    left +=1*(j-1)
+                    top  +=1*(i-1)
+
+    #清空右键菜单
+    MENUCURRENT={}
+    return MENUCURRENT
 def drawTeamMember():
     #global HAVE_DRAW_TEAM_MEMBER
     #if not HAVE_DRAW_TEAM_MEMBER:
@@ -262,6 +345,14 @@ def drawTeamMember():
 def testDef(text):
     testFont,testRect = makeText(text,RED,BGCOLOR,10,10)
     DISPLAYSURF.blit(testFont, testRect)
+
+
+
+
+
+
+
+
 
 
 

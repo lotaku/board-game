@@ -13,6 +13,7 @@ class Player:
     def __init__(self):
         self.name=""
         self.team=""
+        self.iscaption=0
 
     def create(self,name):
         self.name=name
@@ -23,11 +24,14 @@ class Player:
         self.x=x
         self.y=y
         gwdata.drawPlayer(self)
+        playerManager.add(self)
     def move(self,x,y):
         print "点击移动前： 消除旧位置的 player"
         gwdata.erasePlayer(self)
         self.x=x
         self.y=y
+        print 'move 后 ,人物的 x,y :',self.x,self.y
+        playerManager.add(self)
         print "点击移动 player"
         gwdata.drawPlayer(self)
 
@@ -62,9 +66,11 @@ class Player:
     def teamCreate(self):
         team.create(self)
         #print '我是队长名:', team.caption
+        self.iscaption=1
         teamManager.add(team)
         print team.member
         gwdata.drawTeamMember()
+        playerManager.add(self)
 
 player=Player()
 
