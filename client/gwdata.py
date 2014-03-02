@@ -201,6 +201,7 @@ def playermove():
                         if playerUnderMouse.x == LOCAL_PLAYER.x and playerUnderMouse.y == LOCAL_PLAYER.y:#右击player A 自己
                             print '右键下是本人'
                             #全功能菜单,初始化
+                            global menuRightAll
                             menuRightAll={
                                     0:("TeamCreat",player.player.c2gsTeamCreate),\
                                     1:("Invited","def1"),\
@@ -233,28 +234,36 @@ def playermove():
                                     MENUCURRENT[key]=menuRightAll[key]
                                 print "菜单k:v  ",MENUCURRENT
                                 LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
-                            #else:#不是本人 player A
-                                ##判断两个玩家是否有一个队伍
-                                ##localPlayerTeam = teamManager.get(player.player)
-                                ##playerUnderMouseTeam  = teamManager.get(playerUnderMouse)
-                                #if player.player.iscaption: # A 是队长
-                                    #if playerUnderMouse.iscaption: #B 是队长
-                                        #print '都是队长功能待定'
-                                    #elif playerUnderMouse.name in localPlayerTeam.member:
-                                        ## B不是队长,并且在A 的队伍里
-                                        #print '获得当前右键菜单'
-                                        #for i in [2,3]:
-                                            #MENUCURRENT[i]=menuRightAll[i]
-                                        #LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
-                                #else:#player 不是队长
-                                    #if playerUnderMouse.iscaption:#B 是队长
-                                        #print "画 解散队伍"
-                                        #MENUCURRENT[5]=menuRightAll[5]
-                                        #LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
-                                    #else:#B 不是队长
-                                        #print "画 创建队伍"
-                                        #MENUCURRENT[0]=menuRightAll[0]
-                                        #LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
+                        elif playerUnderMouse.x==boxx and playerUnderMouse.y == boxy:
+                            #不是本人 player A
+                            print '右键下的玩家是:', playerUnderMouse.name
+                            #判断两个玩家是否有一个队伍
+                            localPlayerTeam = teamManager.get(LOCAL_PLAYER)
+                            playerUnderMouseTeam  = teamManager.get(playerUnderMouse)
+                            if LOCAL_PLAYER.iscaption: # A 是队长
+                                if playerUnderMouse.iscaption: #B 是队长
+                                    print '都是队长功能待定'
+                                elif playerUnderMouse.name in localPlayerTeam.member:
+                                    print 'B不是队长,并且在A 的队伍里,获得当前右键菜单'
+                                    MENUCURRENT_KEY=[2,3]
+                                    for key in MENUCURRENT_KEY:
+                                        MENUCURRENT[key]=menuRightAll[key]
+                                    LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
+                                else:#
+                                    print 'B不是队长,并且不在 A 的队伍里,获得当前右键菜单'
+                                    MENUCURRENT_KEY=[1]
+                                    for key in MENUCURRENT_KEY:
+                                        MENUCURRENT[key]=menuRightAll[key]
+                                    LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
+                            else:#A 不是队长
+                                if playerUnderMouse.iscaption:#B 是队长
+                                    print "画 解散队伍"
+                                    MENUCURRENT[5]=menuRightAll[5]
+                                    LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
+                                else:#B 不是队长
+                                    print "画 创建队伍"
+                                    MENUCURRENT[0]=menuRightAll[0]
+                                    LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
 
         elif event.type == MOUSEBUTTONDOWN and len(MENUCURRENT):
             if event.button == 1:

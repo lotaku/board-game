@@ -67,6 +67,7 @@ class Player:
         team.create(self)
         #print '我是队长名:', team.caption
         self.iscaption=1
+        self.team=team.name
         teamManager.add(team)
         print team.member
         gwdata.drawTeamMember()

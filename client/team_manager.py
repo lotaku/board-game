@@ -8,7 +8,6 @@ class TeamManager():
     def remove(self,team):
         del self.teams[team.name]
     def get(self,player):
-        raise #print "抛出异常"
         print '玩家队伍名',player.team
         if player.team:
             return self.teams[player.team]
