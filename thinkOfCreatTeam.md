@@ -61,7 +61,16 @@
 
 5,右键点击
 
-    玩家 A ，B , 全功能菜单{0：邀请入队，1：申请入队，2：踢出玩家，3：转让队长,4:建立队伍，5：解散队伍}
+    #全功能菜单
+    menuCurrent={
+            0:("TeamCreat",player.player.c2gsTeamCreate),\
+            1:("Invited","def1"),\
+            2:("kickedOut","def2"),\
+            3:("transferCaptain","def3"),\
+            4:("applyInto","def4"),\
+            5:("disband","def5"),\
+                }
+    玩家 A ，B , 全功能菜单{0:创建队伍,1:邀请入队,2:踢出队伍,3:转让队长,4,申请入队,5,解散队伍
 
     A 右击 B：
     if A is caption :
