@@ -29,7 +29,7 @@ class Client:
 
     def handleEvents(self):
         gwdata.playermove()
-        gwdata.mouseRClick()
+        #gwdata.mouseRClick()
         #gwdata.drawTeamMember()
     def render(self):
         gwdata.clientRender()

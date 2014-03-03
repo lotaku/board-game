@@ -69,9 +69,10 @@ class Player:
         self.iscaption=1
         self.team=team.name
         teamManager.add(team)
-        print team.member
+        print "player_73行:新建队伍成员",team.member
         gwdata.drawTeamMember()
         playerManager.add(self)
+        print "player_75行:已经加入玩家管理,player.iscaption,",self.iscaption
 
 player=Player()
 
@@ -132,9 +133,14 @@ def gs2cExistingPlayers(player,packet):
     x = packet.unpackInt()
     y = packet.unpackInt()
     name =packet.unpackString()
+    iscaption = packet.unpackInt()
+    teamName=packet.unpackString()
+
     newPlayer = Player()
     newPlayer.create(name)
     newPlayer.enterWorld(x,y)
+    newPlayer.iscaption=iscaption
+    newPlayer.team=teamName
     playerManager.add(newPlayer)
 
 def gs2cOtherExitGame(player,packet):
@@ -142,4 +148,18 @@ def gs2cOtherExitGame(player,packet):
     playerToExit =playerManager.remotePlayers[name]
     playerToExit.exitGame()
 def gs2cTeamCreate(player,packet):
+    #playerName=packet.unpackString()
+    #playerGeted=playerManager.get(playerName)
+    #playerGeted.teamCreate()
     player.teamCreate()
+def gs2cOtherTeamCreate(player,packet):
+    playerName = packet.unpackString()
+    playerGeted = playerManager.get(playerName)
+    team.create(playerGeted)
+    playerGeted.iscaption =1
+    playerGeted.team=team.name
+    teamManager.add(team)
+    playerManager.add(playerGeted)
+
+
+

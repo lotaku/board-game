@@ -14,7 +14,8 @@ handler={
     3:player.gs2cOtherEnterWorld,
     4:player.gs2cOtherMove,
     5:player.gs2cExistingPlayers,
-    6:player.gs2cTeamCreate
+    6:player.gs2cTeamCreate,
+    7:player.gs2cOtherTeamCreate,
 
         }
 

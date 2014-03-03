@@ -9,8 +9,9 @@ class Team():
         self.caption = player.name
         self.name="TN"+player.name
         self.member.append(player.name)
-        player.caption=1
-        player.team=self
+        #修改:下面的,不要在这里关联,team 只做team的事情
+        #player.iscaption=1
+        #player.team=self
     def add(self,player):
         self.member.append(player)
     def remove(self,player):
