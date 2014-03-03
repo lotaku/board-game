@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 class Team():
+    """
+    创建一下新的队伍实例,不需要参数
+    """
     def __init__(self):
         self.caption = ''
         #self.name=""

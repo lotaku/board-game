@@ -3,7 +3,8 @@
 import send_packet
 from player_manager import playerManager
 import gwdata
-from team import team
+#from team import team
+import team
 from team_manager import teamManager
 
 #from gwdata import
@@ -64,13 +65,15 @@ class Player:
         packet.send()
 
     def teamCreate(self):
-        team.create(self)
+        newTeam = team.Team()
+        newTeam.create(self)
+        #team.create(self)
         #print '我是队长名:', team.caption
         self.iscaption=1
-        self.team=team.name
-        teamManager.add(team)
-        print "player_73行:新建队伍成员",team.member
-        gwdata.drawTeamMember()
+        self.team=newTeam  # 是指向队伍实例吧.? S 那边只能 self.team=newTeam.name
+        teamManager.add(newTeam)
+        print "player_73行:新建队伍成员",newTeam.member
+        gwdata.drawTeamMember(self)
         playerManager.add(self)
         print "player_75行:已经加入玩家管理,player.iscaption,",self.iscaption
 
@@ -155,10 +158,11 @@ def gs2cTeamCreate(player,packet):
 def gs2cOtherTeamCreate(player,packet):
     playerName = packet.unpackString()
     playerGeted = playerManager.get(playerName)
-    team.create(playerGeted)
+    newTeam = team.Team()
+    newTeam.create(playerGeted)
     playerGeted.iscaption =1
-    playerGeted.team=team.name
-    teamManager.add(team)
+    playerGeted.team=newTeam.name
+    teamManager.add(newTeam)
     playerManager.add(playerGeted)
 
 

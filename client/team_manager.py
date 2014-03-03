@@ -5,6 +5,8 @@ class TeamManager():
         self.teams={}
     def add(self,team):
         self.teams[team.name]=team
+        print "新队伍加入:", team.name
+        print "所有队伍:",self.teams
     def remove(self,team):
         del self.teams[team.name]
     def get(self,player):
