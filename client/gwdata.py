@@ -227,28 +227,8 @@ def playermove():
                                 LOCAL_PLAYER = playerManager.get(localPlayerName)
                                 if LOCAL_PLAYER.iscaption:
                                     showRClickMenu([5])# 显示右键菜单:解散队伍
-
-                                    #print "画 解散队伍"
-                                    #MENUCURRENT_KEY=[5]
-                                    #print '菜单字典 所有 keys:',
-                                    #print MENUCURRENT_KEY
-                                    #for key in MENUCURRENT_KEY:
-                                        #print "菜单字典的 key:",key
-                                        #MENUCURRENT[key]=menuRightAll[key]
-                                    #LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
                                 else:
                                     showRClickMenu([0])# 显示右键菜单:创建队伍
-
-
-                                    #print "画 创建队伍"
-                                    #MENUCURRENT_KEY=[0]
-                                    #print '菜单字典 所有 keys:',
-                                    #print MENUCURRENT_KEY
-                                    #for key in MENUCURRENT_KEY:
-                                        #print "菜单字典的 key:",key
-                                        #MENUCURRENT[key]=menuRightAll[key]
-                                    #print "菜单k:v  ",MENUCURRENT
-                                    #LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
                             else :#playerUnderMouse.x==boxx and playerUnderMouse.y == boxy:
                                 #不是本人 player A
                                 #print '右键下的玩家是:', playerUnderMouse.name
@@ -264,21 +244,12 @@ def playermove():
                                     #print '本地玩家名字确认是:?',localPlayerName
                                     if playerUnderMouse.iscaption: #B 是队长
                                         print '都是队长功能待定'
-                                    #elif playerUnderMouse.name in localPlayerTeam.member:
                                     elif playerUnderMouse.name in LOCAL_PLAYER_team.member:
                                         print 'B不是队长,并且在A 的队伍里,获得当前右键菜单'
                                         showRClickMenu([2,3])# 踢出队伍,转让队长
-                                        #MENUCURRENT_KEY=[2,3]
-                                        #for key in MENUCURRENT_KEY:
-                                            #MENUCURRENT[key]=menuRightAll[key]
-                                        #LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
                                     else:#
                                         print 'B不是队长,并且不在 A 的队伍里,获得当前右键菜单'
                                         showRClickMenu([1])# 邀请
-                                        #MENUCURRENT_KEY=[1] # 邀请
-                                        #for key in MENUCURRENT_KEY:
-                                            #MENUCURRENT[key]=menuRightAll[key]
-                                        #LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
                                 else:#A 不是队长
                                     if playerUnderMouse.iscaption:#B 是队长
                                         if LOCAL_PLAYER.team:# A 是某队队员
@@ -286,18 +257,8 @@ def playermove():
                                         else:
                                             print "画 菜单内容:申请入队"
                                             showRClickMenu([4])
-                                            #MENUCURRENT_KEY=[4]
-                                            #for key in MENUCURRENT_KEY:
-                                                #MENUCURRENT[key]=menuRightAll[key]
-                                            #LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
                                     else:#B 不是队长
                                         print "#都是没有队伍的玩家"
-
-        #elif event.type == MOUSEBUTTONDOWN and len(MENUCURRENT):
-            #if event.button == 1:
-                #mousex,mousey = event.pos
-                #if menuBgRect.collidepoint(mousex,mousey):
-                    #MENUCURRENT = mouseLClickOnCurrentMenu(playerUnderMouse,MENUCURRENT_KEY,MENUCURRENT, LastBoxx,LastBoxy,mousex,mousey)
 
 def exitGame():
     if EXITKEY:
