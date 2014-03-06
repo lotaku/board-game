@@ -16,6 +16,8 @@ handler={
     5:player.gs2cExistingPlayers,
     6:player.gs2cTeamCreate,
     7:player.gs2cOtherTeamCreate,
+    8:player.gs2cInviteAsk,
+    9:player.gs2cInviteReply,
 
         }
 

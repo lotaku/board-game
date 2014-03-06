@@ -27,7 +27,7 @@ YMARGIN = int((WINDOWHEIGHT - (BOARDHEIGHT * (BOXSIZE + GAPSIZE))) / 2)
 
 BOXX_MOVE_TEMP = 999
 BOXY_MOVE_TEMP = 999
-
+askMenuDict={}
 MENUCURRENT ={}
 girlImg = pygame.image.load("../catgirl.png")
 boyImg = pygame.image.load('../boy.png')
@@ -44,6 +44,7 @@ ORANGE   = (255, 128,   0)
 PURPLE   = (255,   0, 255)
 CYAN     = (  0, 255, 255)
 FPSCLOCK=pygame.time.Clock()
+FONT_COLOR=RED
 BGCOLOR = NAVYBLUE
 LIGHTBGCOLOR = GRAY
 BOXCOLOR = WHITE
@@ -70,6 +71,10 @@ def loginWin():
                 enterPlayerName(player.player,event)
                 #enterPlayerName(player,event)
             elif event.type == pygame.KEYDOWN and event.key == K_RETURN:
+                #LOCAL_PLAYER = player.Player()
+                #LOCAL_PLAYER.c2gsEnterWorld()
+                #playerManager.add(LOCAL_PLAYER)
+                #localPlayerName=LOCAL_PLAYER.name
                 player.player.c2gsEnterWorld()
                 playerManager.add(player.player)
                 localPlayerName=player.player.name
@@ -161,7 +166,8 @@ def getBoxAtPixel(x, y):
     return (None, None)
 
 def playermove():
-    global EXITKEY,MENUCURRENT,MENUCURRENT_KEY,LOCAL_PLAYER
+    global EXITKEY,MENUCURRENT,MENUCURRENT_KEY,LOCAL_PLAYER,askMenuDict
+    #askMenuDict={}
     #print '所有玩家',playerManager.remotePlayers
     LOCAL_PLAYER = playerManager.get(localPlayerName)
     mousex = 0
@@ -188,6 +194,9 @@ def playermove():
                 boxx,boxy = getBoxAtPixel(mousex,mousey)
                 if boxx !=None and boxy != None:
                     player.player.c2gsPlayerMove(boxx,boxy)
+                else:
+                    if len(askMenuDict):
+                        inviteAskReply(mousex,mousey)
             if event.button == 3:  # 鼠标右击,判断是否画出右键菜单
                 global LastBoxx,LastBoxy
                 mousex,mousey = event.pos
@@ -196,6 +205,7 @@ def playermove():
                     #menuOpinion(LOCAL_PLAYER,boxx,boxy)
                     #LOCAL_PLAYER=playerManager.get(LOCAL_PLAYER.name)
                     #判断x,y 是否有玩家,并取得该玩家
+                    global playerUnderMouse
                     for _,playerUnderMouse in playerManager.remotePlayers.items():
                         #print type(playerUnderMouse)
                         #print "人物的X:",playerUnderMouse.x
@@ -204,11 +214,11 @@ def playermove():
                             global menuRightAll
                             menuRightAll={
                                     0:("TeamCreat",player.player.c2gsTeamCreate),
-                                    1:("Invited","def1"),
+                                    1:("Invited",player.player.c2gsInvited),
                                     2:("kickedOut","def2"),
                                     3:("transferCaptain","def3"),
                                     4:("applyInto","def4"),
-                                    5:("disband",player.player.c2gsTeamCreate),
+                                    5:("disband","def5"),
                                         }
                             if playerUnderMouse.x == LOCAL_PLAYER.x and playerUnderMouse.y == LOCAL_PLAYER.y:#右击player A 自己
                                 print '右键下是本人'
@@ -241,12 +251,20 @@ def playermove():
                                 #print '右键下的玩家是:', playerUnderMouse.name
                                 #判断两个玩家是否有一个队伍
                                 print "gaL242当前所有队伍",teamManager.teams
-                                localPlayerTeam = teamManager.get(LOCAL_PLAYER)
-                                playerUnderMouseTeam  = teamManager.get(playerUnderMouse)
+                                print LOCAL_PLAYER.team
+                                print LOCAL_PLAYER.name
+                                #localPlayerTeam = teamManager.get(LOCAL_PLAYER)
+                                LOCAL_PLAYER = playerManager.get(localPlayerName)
+                                LOCAL_PLAYER_team = teamManager.get(LOCAL_PLAYER)
+                                #playerUnderMouseTeam  = teamManager.get(playerUnderMouse)
                                 if LOCAL_PLAYER.iscaption: # A 是队长
+                                    print "本地队伍实例",LOCAL_PLAYER_team
+                                    print "本地队伍实例的成员:",LOCAL_PLAYER_team.member
+                                    print '本地玩家名字确认是:?',localPlayerName
                                     if playerUnderMouse.iscaption: #B 是队长
                                         print '都是队长功能待定'
-                                    elif playerUnderMouse.name in localPlayerTeam.member:
+                                    #elif playerUnderMouse.name in localPlayerTeam.member:
+                                    elif playerUnderMouse.name in LOCAL_PLAYER_team.member:
                                         print 'B不是队长,并且在A 的队伍里,获得当前右键菜单'
                                         MENUCURRENT_KEY=[2,3]
                                         for key in MENUCURRENT_KEY:
@@ -254,7 +272,7 @@ def playermove():
                                         LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
                                     else:#
                                         print 'B不是队长,并且不在 A 的队伍里,获得当前右键菜单'
-                                        MENUCURRENT_KEY=[1]
+                                        MENUCURRENT_KEY=[1] # 邀请
                                         for key in MENUCURRENT_KEY:
                                             MENUCURRENT[key]=menuRightAll[key]
                                         LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
@@ -274,7 +292,7 @@ def playermove():
         elif event.type == MOUSEBUTTONDOWN and len(MENUCURRENT):
             if event.button == 1:
                 mousex,mousey = event.pos
-                MENUCURRENT = mouseLClickOnCurrentMenu(MENUCURRENT_KEY,MENUCURRENT, LastBoxx,LastBoxy,mousex,mousey)
+                MENUCURRENT = mouseLClickOnCurrentMenu(playerUnderMouse,MENUCURRENT_KEY,MENUCURRENT, LastBoxx,LastBoxy,mousex,mousey)
 
 def exitGame():
     if EXITKEY:
@@ -290,7 +308,7 @@ def exitGame():
                 #DISPLAYSURF.blit(testFont, (10,10))
 def makeText(text,color,bgcolor,top,left):
     """返回 textSurf,textRect"""
-    FONT_OBJ= pygame.font.Font('freesansbold.ttf', 22)
+    #FONT_OBJ= pygame.font.Font('freesansbold.ttf', 22)
     textSurf=FONT_OBJ.render(text,True,color,bgcolor)
     textRect=textSurf.get_rect()
     textRect.topleft=(top,left)
@@ -317,7 +335,7 @@ def drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy):
         menuLineSurf,menuLineRect = makeText(MENUCURRENT[key][0],WHITE,BGCOLOR,left,top+menuLineHeight*i)
         DISPLAYSURF.blit(menuLineSurf,menuLineRect)
     return LastBoxx,LastBoxy
-def mouseLClickOnCurrentMenu(MENUCURRENT_KEY,menuCurrent, LastBoxx,LastBoxy,mousex,mousey):
+def mouseLClickOnCurrentMenu(playerUnderMouse,MENUCURRENT_KEY,menuCurrent, LastBoxx,LastBoxy,mousex,mousey):
     """
     鼠标点击在右键菜单上"""
     left,top = leftTopCoordsOfBox(LastBoxx+1, LastBoxy)
@@ -325,14 +343,23 @@ def mouseLClickOnCurrentMenu(MENUCURRENT_KEY,menuCurrent, LastBoxx,LastBoxy,mous
     height=BOXSIZE*2+GAPSIZE
     menuRect = pygame.Rect(left,top,width,height)
     if menuRect.collidepoint(mousex,mousey):
-        for i in MENUCURRENT_KEY:
+        lenght= range(len(MENUCURRENT_KEY))
+        tempDict=zip(MENUCURRENT_KEY,lenght)
+        print tempDict
+        for key,i in tempDict:
+            print "捕获右键 菜单 点击"
             menuLineHeight = BOXSIZE/2
-            _,menuLineRect = makeText(menuCurrent[i][0],WHITE,BGCOLOR,left,top+menuLineHeight*i)
+            _,menuLineRect = makeText(menuCurrent[key][0],WHITE,BGCOLOR,left,top+menuLineHeight*i)
             if menuLineRect.collidepoint(mousex,mousey):
-                #testDef(menuCurrent[i][0])
-                menuCurrent[i][1]()
-                #print 'xxx',player.team.member
-                #pygame.time.wait(3000)
+                #menuCurrent[i][1](playerUnderMouse)
+                if key == 0:
+                    print '调用创建队伍菜单'
+                    menuCurrent[key][1]()
+                else:
+                    print "调用邀请菜单:",
+                    print menuCurrent[key][1]
+                    menuCurrent[key][1](playerUnderMouse)
+
     #重画菜单后面的背景+人物
 
     for _,playerBehindRMenu in playerManager.remotePlayers.items():
@@ -346,96 +373,101 @@ def mouseLClickOnCurrentMenu(MENUCURRENT_KEY,menuCurrent, LastBoxx,LastBoxy,mous
     #清空右键菜单
     MENUCURRENT={}
     return MENUCURRENT
-def drawTeamMember(player):
+def inviteAskShow(player,inviterName_local):
+    global inviterName
+    inviterName = inviterName_local
+    message = "Do you want to join in %s's team?" % inviterName
+    print "格式化后的message:",message
+    top = YMARGIN/2
+    left = XMARGIN/4
+    messageSurf,messageRect = makeText(message,FONT_COLOR,BGCOLOR,top,left)
+    #按钮 NO 和 YES
+    noSurf,noRect = makeText("No",FONT_COLOR,BGCOLOR,left,top)
+    yesSurf,yesRect = makeText("Yes",FONT_COLOR,BGCOLOR,left+50,top)
+    DISPLAYSURF.blit(messageSurf,messageRect)
+    DISPLAYSURF.blit(noSurf,noRect)
+    DISPLAYSURF.blit(yesSurf,yesRect)
+    global askMenuDict
+    askMenuDict={"No":noRect,"Yes":yesRect}
+    print '显示邀请询问菜单'
+def inviteAskReply(mousex,mousey):
+    """
+    """
+    print "调用 inviteAskReply()"
+    global askMenuDict,inviterName
+    #判断鼠标位置,并调用对应函数
+    for buttonString, buttonRect in askMenuDict.items():
+        if buttonRect.collidepoint(mousex,mousey):
+            print '已经点击回答'
+            player.player.c2gsInviteReply(buttonString,inviterName)
+            if buttonString == "Yes":
+                print '已回答yes'
+                inviter =  playerManager.get(inviterName)
+                inviterTeam = teamManager.get(inviter)
+                inviterTeam.add(LOCAL_PLAYER.name)
+                LOCAL_PLAYER.team=inviterTeam
+                playerManager.add(LOCAL_PLAYER)
+                teamManager.add(inviterTeam)
+                print "#在DISPLAYSURF上消除 message"
+                fillWithBGCOLOR(0,0,WINDOWWIDTH,YMARGIN)
+                drawTeamMember(LOCAL_PLAYER)
+            else:
+                print "#todo: 已回答否"
+
+    print "#清空askMenuDict"
+    askMenuDict={}
+    #print "#在DISPLAYSURF上消除 message"
+    #fillWithBGCOLOR(0,0,WINDOWWIDTH,YMARGIN)
+def inviteAnswerReply(answer,inviteeName):
+    if answer == "Yes":
+        LOCAL_PLAYER = playerManager.get(localPlayerName)
+        LOCAL_PLAYER_team = teamManager.get(LOCAL_PLAYER)
+        LOCAL_PLAYER_team.add(inviteeName)
+        print "刚刚加入了新的成员,新的队伍成员:"
+        print LOCAL_PLAYER_team.member
+        LOCAL_PLAYER.team=LOCAL_PLAYER_team
+
+        print "#先画背景,在画内容"
+        print "本地玩家的名字:" ,
+        print LOCAL_PLAYER.name
+        print "本地玩家的队伍实例",
+        print LOCAL_PLAYER.team
+        teamManager.add(LOCAL_PLAYER_team)
+        playerManager.add(LOCAL_PLAYER)
+        fillWithBGCOLOR(0,0,BOARDWIDTH,YMARGIN)
+        drawTeamMember(LOCAL_PLAYER)
+#还需要 回复S? 让队员更新? 还是前面就应该先更新了?
+    else:
+        print "答案是否"
+
+def fillWithBGCOLOR(top,left,width,height):
+    rect=pygame.Rect(top,left,width,height)
+    #rect=pygame.Rect(top,left,200,300)
+    pygame.draw.rect(DISPLAYSURF,BGCOLOR,rect)
+    #pygame.draw.rect(DISPLAYSURF,BGCOLOR,(0,0,500,600))
+    pygame.display.update()
+    print "调用 fillWithBGCOLOR()"
+def drawTeamMember(playerDraw):
     #global HAVE_DRAW_TEAM_MEMBER
     #if not HAVE_DRAW_TEAM_MEMBER:
-    print '成员数,',len(player.team.member)
-    for memberName in player.team.member:
-        for i in range(len(player.team.member)):
-            memberSurf,memberRect = makeText(memberName,RED,GREEN,20+(66*i),20)
-            DISPLAYSURF.blit(memberSurf,memberRect)
+    lenghtList = range(len(playerDraw.team.member))
+    memberName = playerDraw.team.member
+
+    print '成员数,',len(playerDraw.team.member)
+    print '成员名:', memberName
+    #for memberName in playerDraw.team.member:
+        #for i in range(len(playerDraw.team.member)):
+            #memberSurf,memberRect = makeText(memberName,RED,GREEN,20+(66*i),20)
+            #DISPLAYSURF.blit(memberSurf,memberRect)
         #HAVE_DRAW_TEAM_MEMBER = 1
-
-def menuOpinion(LOCAL_PLAYER,boxx,boxy):
-    #LOCAL_PLAYER=playerManager.get(LOCAL_PLAYER.name)
-    #判断x,y 是否有玩家,并取得该玩家
-    for _,playerUnderMouse in playerManager.remotePlayers.items():
-        #print type(playerUnderMouse)
-        #print "人物的X:",playerUnderMouse.x
-        if playerUnderMouse.x == boxx and playerUnderMouse.y == boxy:
-            #全功能菜单,初始化
-            global menuRightAll
-            menuRightAll={
-                    0:("TeamCreat",player.player.c2gsTeamCreate),
-                    1:("Invited","def1"),
-                    2:("kickedOut","def2"),
-                    3:("transferCaptain","def3"),
-                    4:("applyInto","def4"),
-                    5:("disband",player.player.c2gsTeamCreate),
-                        }
-            if playerUnderMouse.x == LOCAL_PLAYER.x and playerUnderMouse.y == LOCAL_PLAYER.y:#右击player A 自己
-                print '右键下是本人'
-                #player:是本地玩家 A ,playerundermouse 右键下的玩家 B
-                #if playerUnderMouse.x == player.player.x and playerUnderMouse.y == player.player.y:#右击player A 自己
-                LOCAL_PLAYER = playerManager.get(localPlayerName)
-                if LOCAL_PLAYER.iscaption:
-                #if 1==1:
-                    #global MENUCURRENT_KEY
-                    print "画 解散队伍"
-                    MENUCURRENT_KEY=[5]
-                    print '菜单字典 所有 keys:',
-                    print MENUCURRENT_KEY
-                    for key in MENUCURRENT_KEY:
-                        print "菜单字典的 key:",key
-                        MENUCURRENT[key]=menuRightAll[key]
-                    LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
-                else:
-                    print "画 创建队伍"
-                    MENUCURRENT_KEY=[0]
-                    print '菜单字典 所有 keys:',
-                    print MENUCURRENT_KEY
-                    for key in MENUCURRENT_KEY:
-                        print "菜单字典的 key:",key
-                        MENUCURRENT[key]=menuRightAll[key]
-                    print "菜单k:v  ",MENUCURRENT
-                    LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
-            else :#playerUnderMouse.x==boxx and playerUnderMouse.y == boxy:
-                #不是本人 player A
-                #print '右键下的玩家是:', playerUnderMouse.name
-                #判断两个玩家是否有一个队伍
-                print "gaL242当前所有队伍",teamManager.teams
-                localPlayerTeam = teamManager.get(LOCAL_PLAYER)
-                playerUnderMouseTeam  = teamManager.get(playerUnderMouse)
-                if LOCAL_PLAYER.iscaption: # A 是队长
-                    if playerUnderMouse.iscaption: #B 是队长
-                        print '都是队长功能待定'
-                    elif playerUnderMouse.name in localPlayerTeam.member:
-                        print 'B不是队长,并且在A 的队伍里,获得当前右键菜单'
-                        MENUCURRENT_KEY=[2,3]
-                        for key in MENUCURRENT_KEY:
-                            MENUCURRENT[key]=menuRightAll[key]
-                        LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
-                    else:#
-                        print 'B不是队长,并且不在 A 的队伍里,获得当前右键菜单'
-                        MENUCURRENT_KEY=[1]
-                        for key in MENUCURRENT_KEY:
-                            MENUCURRENT[key]=menuRightAll[key]
-                        LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
-                else:#A 不是队长
-                    if playerUnderMouse.iscaption:#B 是队长
-                        print "画 解散队伍"
-                        MENUCURRENT_KEY=[5]
-                        for key in MENUCURRENT_KEY:
-                            MENUCURRENT[key]=menuRightAll[key]
-                        LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
-                    else:#B 不是队长
-                        print "画 创建队伍"
-                        MENUCURRENT_KEY=[0]
-                        for key in MENUCURRENT_KEY:
-                            MENUCURRENT[key]=menuRightAll[key]
-                        LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
-
-
+    tempDict = zip(memberName, lenghtList) #
+    for memberName,i in tempDict:
+        memberSurf,memberRect = makeText(memberName,RED,GREEN,20+(66*i),20)
+        DISPLAYSURF.blit(memberSurf,memberRect)
+    pygame.display.update()
+def freshLOCAL_PLAYER():
+    global LOCAL_PLAYER,localPlayerName
+    LOCAL_PLAYER = playerManager.get(localPlayerName)
 def testDef(text):
     testFont,testRect = makeText(text,RED,BGCOLOR,10,10)
     DISPLAYSURF.blit(testFont, testRect)

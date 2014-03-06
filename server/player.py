@@ -12,6 +12,7 @@ class Player:
         self.exitKey = 0
         self.team=""
         self.iscaption=0
+        self.name = ''
     def creat(self,name):
         self.name=name
         self.x=0
@@ -87,10 +88,24 @@ class Player:
             packet=SendPacket(7)
             packet.packString(self.name)
             packet.send(playerOther)
+    def inviteAsk(self,inviter):
+        self.gs2cInviteAsk(inviter)
+    def gs2cInviteAsk(self,inviter):
+        packet = SendPacket(8)
+        packet.packString(inviter.name)
+        packet.send(self)
+    def inviteReply(self,answer,inviteeName):
+        self.gs2cInviteReplay(answer,inviteeName)
+    def gs2cInviteReplay(self,answer,inviteeName):
+        packet = SendPacket(9)
+        packet.packString(answer)
+        packet.packString(inviteeName)
+        packet.send(self)
 
 def c2gsEnterWorld(player,packet):
     name = packet.unpackString()
     player.creat(name)
+    playerManager.add(player)
     player.enterWorld()
 def c2gsPlayerMove(player,packet):
     x=packet.unpackInt()
@@ -103,4 +118,14 @@ def c2gsTeamCreate(player,packet):
     #player.gs2cTeamCreate()
     player.teamCreate()
 
+def c2gsInvited(player,packet):
+    inviteeName=packet.unpackString()
+    invitee = playerManager.getPlayerByName(inviteeName)
+    invitee.inviteAsk(player)
+def c2gsInviteReplay(player,packet):
+    inviteeName=player.name
+    answer = packet.unpackString()
+    inviterName= packet.unpackString()
+    inviter = playerManager.getPlayerByName(inviterName)
+    inviter.inviteReply(answer,inviteeName)
 

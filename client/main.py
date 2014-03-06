@@ -23,6 +23,7 @@ class Client:
             self.handleEvents()
             self.render()
             tcpClient.sendPackets()
+            gwdata.freshLOCAL_PLAYER()
             gwdata.exitGame()
 
 

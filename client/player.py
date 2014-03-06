@@ -13,7 +13,7 @@ class Player:
 
     def __init__(self):
         self.name=""
-        self.team=""
+        #self.team=""
         self.iscaption=0
 
     def create(self,name):
@@ -65,6 +65,7 @@ class Player:
         packet.send()
 
     def teamCreate(self):
+        global playerManager,teamManager
         newTeam = team.Team()
         newTeam.create(self)
         #team.create(self)
@@ -76,6 +77,31 @@ class Player:
         gwdata.drawTeamMember(self)
         playerManager.add(self)
         print "player_75行:已经加入玩家管理,player.iscaption,",self.iscaption
+        print "玩家.team.member:",
+        print self.team.member
+        print '玩家.name',self.name
+        regetPlayer = playerManager.get(self.name)
+        print "重新获取玩家的队伍实例的 成员"
+        print regetPlayer.team.member
+
+
+    def c2gsInvited(self,invitee):
+        packet = send_packet.SendPacket(8)
+        #packet.packString(self.name)
+        packet.packString(invitee.name)
+        packet.send()
+        print "发送邀请请求"
+    def inviteAskShow(self,inviterName):
+        gwdata.inviteAskShow(self,inviterName)
+    def c2gsInviteReply(self,answer,inviterName):
+        packet = send_packet.SendPacket(9)
+        packet.packString(answer)
+        packet.packString(inviterName)
+        packet.send()
+    def inviteAnswerReply(self,answer,inviteeName):
+        gwdata.inviteAnswerReply(answer,inviteeName)
+
+
 
 player=Player()
 
@@ -164,6 +190,13 @@ def gs2cOtherTeamCreate(player,packet):
     playerGeted.team=newTeam.name
     teamManager.add(newTeam)
     playerManager.add(playerGeted)
+def gs2cInviteAsk(player,packet):
+    inviterName = packet.unpackString()
+    player.inviteAskShow(inviterName)
+    #player.inviteAskReply(inviterName)
 
-
+def gs2cInviteReply(player,packet):
+    answer = packet.unpackString()
+    inviteeName = packet.unpackString()
+    player.inviteAnswerReply(answer,inviteeName)
 

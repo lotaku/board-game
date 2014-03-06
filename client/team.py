@@ -15,8 +15,8 @@ class Team():
         #修改:下面的,不要在这里关联,team 只做team的事情
         #player.iscaption=1
         #player.team=self
-    def add(self,player):
-        self.member.append(player)
+    def add(self,playerName):
+        self.member.append(playerName)
     def remove(self,player):
         self.member.remove(player)
 team=Team()

@@ -10,9 +10,9 @@ class TeamManager():
     def remove(self,team):
         del self.teams[team.name]
     def get(self,player):
-        print 'teamManager_11行:玩家队伍名',player.team
-        print "当teamManager_12行:右键下玩家的名字",player.name
-        print "当teamManager_13行:前所有队伍",self.teams
+        #print 'teamManager_11行:玩家队伍名',player.team
+        #print "当teamManager_12行:右键下玩家的名字",player.name
+        #print "当teamManager_13行:前所有队伍",self.teams
         try:
             return self.teams[player.team]
         except KeyError:
