@@ -109,6 +109,14 @@ def erasePlayer(player):
     left, top = leftTopCoordsOfBox(player.x,player.y)
     pygame.draw.rect(DISPLAYSURF, BOXCOLOR, (left, top, BOXSIZE, BOXSIZE))
 
+def drawBoxes(tupleList):
+    for boxx,boxy in tupleList:
+        left,top = leftTopCoordsOfBox(boxx,boxy )
+        pygame.draw.rect(DISPLAYSURF, BOXCOLOR, (left, top, BOXSIZE, BOXSIZE))
+        #pygame.draw.rect(DISPLAYSURF, RED, (left, top, BOXSIZE, BOXSIZE))
+
+def drawBgcolor(left,top,width,height):
+    pygame.draw.rect(DISPLAYSURF, BGCOLOR, (left, top, width, height))
 def drawPlayer(player):
     global DISPLAYSURF
     print "新的x：",player.x
@@ -119,8 +127,8 @@ def drawPlayer(player):
     fontObj = pygame.font.Font('freesansbold.ttf', 22)
     userNameSurfaceObj = fontObj.render(player.name, True, NAVYBLUE)
     DISPLAYSURF.blit(userNameSurfaceObj, (left+20,top+60))
-    #print "刷新测试："
-    #pygame.display.update()
+    print "刷新测试："
+    pygame.display.update()
 
 def drawPlayerTemp(player,boxx,boxy):
     global BOXX_MOVE_TEMP,BOXY_MOVE_TEMP
@@ -187,6 +195,7 @@ def playermove():
             #if event.button == 1 and isCollidepoint:
             if event.button == 1 and len(MENUCURRENT):
                 MENUCURRENT = mouseLClickOnCurrentMenu(playerUnderMouse,MENUCURRENT_KEY,MENUCURRENT, LastBoxx,LastBoxy,mousex,mousey)
+                continue
 
             #玩家左击移动
             if event.button == 1:
@@ -321,29 +330,44 @@ def mouseLClickOnCurrentMenu(playerUnderMouse,MENUCURRENT_KEY,menuCurrent, LastB
                     print menuCurrent[key][1]
                     menuCurrent[key][1](playerUnderMouse)
 
-    reDrawPlayerBehindMenu(left,top)
     ##重画菜单后面的背景+人物
+    reDrawPlayerBehindMenu(left,top,LastBoxx,LastBoxy)
+    #清空右键菜单
+    MENUCURRENT={}
+    return MENUCURRENT
+def reDrawPlayerBehindMenu(left,top,LastBoxx,LastBoxy):
+    print "#重画菜单后面的背景+人物"
+    width = (BOXSIZE+GAPSIZE)*2
+    height =(BOXSIZE+GAPSIZE)*2
+    drawBgcolor(left,top,width,height)
+    boxx,boxy =  getBoxAtPixel(left,top)
+    print 'left:',left
+    print 'top:',top
+    #boxx = LastBoxx+1
+    #boxy = LastBoxy
+    boxylist = list(range(boxy,boxy+2))
+    boxxlist = list(range(boxx,boxx+2))
+    for boxy in boxylist:# 行
+        for boxx in boxxlist: #列
+            print "菜单后面的格子:",(boxx,boxy)
+            drawBoxes([(boxx,boxy)])
+            #drawPlayer(LOCAL_PLAYER)
+            for _,playerBehindRMenu in playerManager.remotePlayers.items():
+                if playerBehindRMenu.x == boxx and  playerBehindRMenu.y == boxy:
+                    print "菜单后面的玩家x,y"
+                    print (playerBehindRMenu.x,playerBehindRMenu.y)
+                    drawPlayer(playerBehindRMenu)
 
     #for _,playerBehindRMenu in playerManager.remotePlayers.items():
         #for i in [1,2]:# 两行
             #for j in [1,2]: #两列
-                #if playerBehindRMenu.x == left and  playerBehindRMenu.y == top:
+                #drawBoxes([(boxx,boxy)])
+                #if playerBehindRMenu.x == boxx and  playerBehindRMenu.y == boxy:
                     #drawPlayer(playerBehindRMenu)
-                    #left +=1*(j-1)
-                    #top  +=1*(i-1)
-
-    #清空右键菜单
-    MENUCURRENT={}
-    return MENUCURRENT
-def reDrawPlayerBehindMenu(left,top):
-    print "#重画菜单后面的背景+人物"
-    for _,playerBehindRMenu in playerManager.remotePlayers.items():
-        for i in [1,2]:# 两行
-            for j in [1,2]: #两列
-                if playerBehindRMenu.x == left and  playerBehindRMenu.y == top:
-                    drawPlayer(playerBehindRMenu)
-                    left +=1*(j-1)
-                    top  +=1*(i-1)
+                #boxx +=1
+                #print 'left:',boxx
+                #print 'top:',boxy
+            #boxy+=1
 
 def inviteAskShow(player,inviterName_local):
     global inviterName

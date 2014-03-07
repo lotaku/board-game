@@ -43,6 +43,7 @@ class Player:
         #print 'c发包：请求进入游戏'
 
     def c2gsPlayerMove(self,x,y):
+        playerManager.add(self)
         packet=send_packet.SendPacket(2)
         packet.packInt(x)
         packet.packInt(y)
