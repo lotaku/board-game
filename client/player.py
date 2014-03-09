@@ -120,14 +120,20 @@ class Player:
         packet.send()
     def kickOut(self,inviterName,memberToOut):
         if self.name == inviterName:
+            member = playerManager.get(memberToOut)
+            member.menu.updateMenuOption([])
+            print "被踢玩家清空后的菜单类实例:" ,member.menu
             self.team = teamManager.getByTeamName(self)
             print "获得队长team实例:",self.team
             self.team.removeByName(memberToOut)
             teamManager.add(self.team)
             playerManager.add(self)
+            playerManager.add(member)
             print "blit新的队伍,在队长客户端里:"
             gwdata.drawTeamMember(self)
         elif self.name == memberToOut:
+            self.menu.updateMenuOption([])
+            print "被踢玩家清空后的菜单类实例:" ,self.menu
             teamManager.remove(self.team)
             self.team=""
             gwdata.disDrawTeamMember()
