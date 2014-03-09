@@ -169,6 +169,27 @@ class Player:
             packet.send(member)
         print "成功发送给队伍里的所有人"
 
+    def transferCaption(self,newCaptionName):
+        print "self,是队长"
+        self.gs2cTransferCaption(newCaptionName)
+        #todo 在S 端改变队长信息
+        self.iscaption=0
+        newCaption = playerManager.getPlayerByName(newCaptionName)
+        newCaption.iscaption=1
+        playerManager.add(self)
+        playerManager.add(newCaption)
+    def gs2cTransferCaption(self,newCaptionName):
+        packet = SendPacket(11)
+        packet.packString(self.name)#旧 队长名
+        packet.packString(newCaptionName)#new 队长名
+        print "获得队长的 队伍 实例"
+        self.team = teamManager.get(self)
+        print "发送包给每个队友实例"
+        print "所有的队员实例:",self.team.member
+        for member in self.team.member:
+            packet.send(member)
+
+
 
 def c2gsEnterWorld(player,packet):
     name = packet.unpackString()
@@ -206,3 +227,6 @@ def c2gsInviteReplay(player,packet):
 def c2gsKickOut(player,packet):
     memberName = packet.unpackString()
     player.kickOut(memberName)
+def c2gsTransferCaption(player,packet):
+    newCaptionName = packet.unpackString()
+    player.transferCaption(newCaptionName)

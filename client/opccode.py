@@ -19,6 +19,7 @@ handler={
     8:player.gs2cInviteAsk,
     9:player.gs2cInviteReply,
     10:player.gs2cKickOut,
+    11:player.gs2cTransferCaptain,
 
         }
 

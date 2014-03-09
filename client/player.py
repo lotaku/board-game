@@ -76,7 +76,7 @@ class Player:
         self.iscaption=1
         self.team=newTeam  # 是指向队伍实例吧.? S 那边只能 self.team=newTeam.name
         self.teamName=newTeam.name
-        self.menu.updateMenuOption([5])
+        #self.menu.updateMenuOption([5])
 
         teamManager.add(newTeam)
         print "player_73行:新建队伍成员",newTeam.member
@@ -139,8 +139,19 @@ class Player:
             gwdata.disDrawTeamMember()
             playerManager.add(self)
             print '在被踢出的玩家客户端里,重新blit队伍所在'
+    def c2gsTransferCaptain(self,playerUnderMouse):
+        packet = send_packet.SendPacket(11)
+        packet.packString(playerUnderMouse.name)
+        packet.send()
 
-
+    def transferCaption(self,oldCaptionName,newCaptionName):
+        oldCaption = playerManager.get(oldCaptionName)
+        newCaption = playerManager.get(newCaptionName)
+        oldCaption.iscaption=0
+        newCaption.iscaption=1
+        playerManager.add(oldCaption)
+        playerManager.add(newCaption)
+        gwdata.drawTeamMember(self)
 
 
 
@@ -334,3 +345,10 @@ def gs2cKickOut(player,packet):
     inviterName = packet.unpackString()
     memberToOut= packet.unpackString()
     player.kickOut(inviterName,memberToOut)
+def gs2cTransferCaptain(player,packet):
+    oldCaptionName = packet.unpackString()
+    newCaptionName = packet.unpackString()
+    player.transferCaption(oldCaptionName,newCaptionName)
+
+
+

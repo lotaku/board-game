@@ -229,7 +229,7 @@ def playermove():
                                     0:("TeamCreat",player.player.c2gsTeamCreate),
                                     1:("Invited",player.player.c2gsInvited),
                                     2:("kickedOut",player.player.c2gsKickOut),
-                                    3:("transferCaptain","def3"),
+                                    3:("TransferCaptain",player.player.c2gsTransferCaptain),
                                     4:("applyInto","def4"),
                                     5:("disband","def5"),
                                     6:("QuitTeam","def6"),
@@ -238,58 +238,64 @@ def playermove():
                                     9:("aCommonPlayer","def9"),
                                     10:("U,I,caption","def10"),
                                         }
-                            if playerUnderMouse.x == LOCAL_PLAYER.x and playerUnderMouse.y == LOCAL_PLAYER.y:#右击player A 自己
-                                print '右键下是本人'
-                                print playerUnderMouse.menu
-                                if not playerUnderMouse.menu:
-                                    print " 没有右键菜单, --> 菜单初始化"
-                                    menu.Menu(menuRightAll,playerUnderMouse)
-                                    playerUnderMouse.menu.updateMenuOption([0])
-                                print "显示右键菜单"
-                                playerUnderMouse.menu.showMenuOption()
-                            else:
-                                print "右键下不是A"
-                                if not playerUnderMouse.menu:
-                                    print "没有右键菜单, --> 菜单初始化 --> 右键下是个普通玩家"
-                                    menu.Menu(menuRightAll,playerUnderMouse)
-                                    LOCAL_PLAYER = playerManager.get(localPlayerName)
-                                    if LOCAL_PLAYER.iscaption:
-                                        print "a is caption:"
+                            menuOptionList = list(range(7))
+                            print menuOptionList
+                            menu.Menu(menuRightAll,playerUnderMouse)
+                            playerUnderMouse.menu.updateMenuOption(menuOptionList)
+                            playerUnderMouse.menu.showMenuOption()
+###=============以下是根据玩家不同的状态显示的菜单,功能不完善,感觉太繁琐,暂时不弄===
+                            #if playerUnderMouse.x == LOCAL_PLAYER.x and playerUnderMouse.y == LOCAL_PLAYER.y:#右击player A 自己
+                                #print '右键下是本人'
+                                #print playerUnderMouse.menu
+                                #if not playerUnderMouse.menu:
+                                    #print " 没有右键菜单, --> 菜单初始化"
+                                    #menu.Menu(menuRightAll,playerUnderMouse)
+                                    #playerUnderMouse.menu.updateMenuOption([0])
+                                #print "显示右键菜单"
+                                #playerUnderMouse.menu.showMenuOption()
+                            #else:
+                                #print "右键下不是A"
+                                #if not playerUnderMouse.menu:
+                                    #print "没有右键菜单, --> 菜单初始化 --> 右键下是个普通玩家"
+                                    #menu.Menu(menuRightAll,playerUnderMouse)
+                                    #LOCAL_PLAYER = playerManager.get(localPlayerName)
+                                    #if LOCAL_PLAYER.iscaption:
+                                        #print "a is caption:"
 
-                                        if playerUnderMouse.iscaption:
-                                            print 'b is caption'
-                                            playerUnderMouse.menu.updateMenuOption([10])
-                                        elif playerUnderMouse.teamName:
-                                            print 'b is a member'
-                                            playerUnderMouse.menu.updateMenuOption([7])
-                                        else:
-                                            print 'b is a common player'
-                                            playerUnderMouse.menu.updateMenuOption([1])
-
-                                    elif LOCAL_PLAYER.teamName:
-                                        print "a is a member"
-
-                                        if playerUnderMouse.iscaption:
-                                            print 'b is caption'
+                                        #if playerUnderMouse.iscaption:
+                                            #print 'b is caption'
+                                            #playerUnderMouse.menu.updateMenuOption([10])
+                                        #elif playerUnderMouse.teamName:
+                                            #print 'b is a member'
+                                            #playerUnderMouse.menu.updateMenuOption([7])
+                                        #else:
+                                            #print 'b is a common player'
                                             #playerUnderMouse.menu.updateMenuOption([1])
-                                        elif playerUnderMouse.teamName:
-                                            print 'b is a member'
-                                            #playerUnderMouse.menu.updateMenuOption([1])
-                                        else:
-                                            print 'b is a common player'
-                                    else:
-                                        print "a is common player"
 
-                                        if playerUnderMouse.iscaption:
-                                            print 'b is caption'
-                                            playerUnderMouse.menu.updateMenuOption([4])
-                                        elif playerUnderMouse.teamName:
-                                            print 'b is a member'
-                                        else:
-                                            print 'b is a common player'
-                                            playerUnderMouse.menu.updateMenuOption([0])
-                                print "显示右键菜单"
-                                playerUnderMouse.menu.showMenuOption()
+                                    #elif LOCAL_PLAYER.teamName:
+                                        #print "a is a member"
+
+                                        #if playerUnderMouse.iscaption:
+                                            #print 'b is caption'
+                                            ##playerUnderMouse.menu.updateMenuOption([1])
+                                        #elif playerUnderMouse.teamName:
+                                            #print 'b is a member'
+                                            ##playerUnderMouse.menu.updateMenuOption([1])
+                                        #else:
+                                            #print 'b is a common player'
+                                    #else:
+                                        #print "a is common player"
+
+                                        #if playerUnderMouse.iscaption:
+                                            #print 'b is caption'
+                                            #playerUnderMouse.menu.updateMenuOption([4])
+                                        #elif playerUnderMouse.teamName:
+                                            #print 'b is a member'
+                                        #else:
+                                            #print 'b is a common player'
+                                            #playerUnderMouse.menu.updateMenuOption([0])
+                                #print "显示右键菜单"
+                                #playerUnderMouse.menu.showMenuOption()
 def exitGame():
     if EXITKEY:
         #time.sleep(3)
@@ -312,7 +318,7 @@ def drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy):
     LastBoxx,LastBoxy = boxx,boxy
     left,top = leftTopCoordsOfBox(boxx+1, boxy)
     width =BOXSIZE
-    height=BOXSIZE*2+GAPSIZE
+    height=BOXSIZE*3+GAPSIZE*2
     global menuBgRect
     menuBgRect = pygame.draw.rect(DISPLAYSURF,RED,(left,top,width,height))
     lenght= range(len(MENUCURRENT_KEY))
@@ -359,14 +365,14 @@ def mouseLClickOnCurrentMenu(playerUnderMouse,MENUCURRENT_KEY,menuCurrent, LastB
 def reDrawPlayerBehindMenu(left,top,LastBoxx,LastBoxy):
     print "#重画菜单后面的背景+人物"
     width = (BOXSIZE+GAPSIZE)*2
-    height =(BOXSIZE+GAPSIZE)*2
+    height =(BOXSIZE+GAPSIZE)*3
     drawBgcolor(left,top,width,height)
     boxx,boxy =  getBoxAtPixel(left,top)
     print 'left:',left
     print 'top:',top
     #boxx = LastBoxx+1
     #boxy = LastBoxy
-    boxylist = list(range(boxy,boxy+2))
+    boxylist = list(range(boxy,boxy+3))
     boxxlist = list(range(boxx,boxx+2))
     for boxy in boxylist:# 行
         for boxx in boxxlist: #列
@@ -378,17 +384,6 @@ def reDrawPlayerBehindMenu(left,top,LastBoxx,LastBoxy):
                     print "菜单后面的玩家x,y"
                     print (playerBehindRMenu.x,playerBehindRMenu.y)
                     drawPlayer(playerBehindRMenu)
-
-    #for _,playerBehindRMenu in playerManager.remotePlayers.items():
-        #for i in [1,2]:# 两行
-            #for j in [1,2]: #两列
-                #drawBoxes([(boxx,boxy)])
-                #if playerBehindRMenu.x == boxx and  playerBehindRMenu.y == boxy:
-                    #drawPlayer(playerBehindRMenu)
-                #boxx +=1
-                #print 'left:',boxx
-                #print 'top:',boxy
-            #boxy+=1
 
 def inviteAskShow(player,inviterName_local):
     global inviterName
@@ -417,19 +412,6 @@ def inviteAskReply(mousex,mousey):
         if buttonRect.collidepoint(mousex,mousey):
             print '已经点击回答'
             player.player.c2gsInviteReply(buttonString,inviterName)
-            #if buttonString == "Yes":
-                #print '已回答yes'
-                #inviter =  playerManager.get(inviterName)
-                #inviterTeam = teamManager.get(inviter)
-                #inviterTeam.add(LOCAL_PLAYER.name)
-                #LOCAL_PLAYER.team=inviterTeam
-                #playerManager.add(LOCAL_PLAYER)
-                #teamManager.add(inviterTeam)
-                #print "#在DISPLAYSURF上消除 message"
-                #fillWithBGCOLOR(0,0,WINDOWWIDTH,YMARGIN)
-                #drawTeamMember(LOCAL_PLAYER)
-            #else:
-                #print "#todo: 已回答否"
 
     print "#在DISPLAYSURF上消除 message"
     fillWithBGCOLOR(0,0,WINDOWWIDTH,YMARGIN)
@@ -507,6 +489,12 @@ def drawTeamMember(playerDraw):
     for memberName,i in tempDict:
         memberSurf,memberRect = makeText(memberName,RED,GREEN,20+(66*i),20)
         DISPLAYSURF.blit(memberSurf,memberRect)
+        # 判断队长是谁
+        member = playerManager.get(memberName)
+        if member.iscaption:
+            captionMsg = 'Caption: '+memberName
+            memberSurf,memberRect = makeText(captionMsg,RED,GREEN,20+(66*i),50)
+            DISPLAYSURF.blit(memberSurf,memberRect)
     pygame.display.update()
 def showRClickMenu(keyList):
     """显示指定菜单"""
