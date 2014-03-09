@@ -152,6 +152,21 @@ class Player:
         playerManager.add(oldCaption)
         playerManager.add(newCaption)
         gwdata.drawTeamMember(self)
+    def c2gsJoinIn(self,playerUnderMouse):
+        packet = send_packet.SendPacket(12)
+        packet.packString(playerUnderMouse.name)
+        packet.send()
+    def joinIn(self,newMemberName):
+        self.team = teamManager.getByTeamName(self)
+        self.team.add(newMemberName)
+        teamManager.add(self.team)
+        gwdata.drawTeamMember(self)
+    def c2gsQuitTeam(self,playerUnderMouse):
+        packet = send_packet.SendPacket(13)
+        #packet.packString(playerUnderMouse.name)
+        packet.send()
+        print "发生退伍请求:"
+
 
 
 
@@ -352,3 +367,36 @@ def gs2cTransferCaptain(player,packet):
 
 
 
+def gs2cJoinIn(player,packet):
+    captionName= packet.unpackString()
+    newMemberName = packet.unpackString()
+    memberNum = packet.unpackInt()
+    caption = playerManager.get(captionName)
+    if player.name == newMemberName:
+        newTeam = team.Team()
+        newTeam.create(caption)
+        memberNumList = range(memberNum)
+        for i in memberNumList:
+            memberName = packet.unpackString()
+            newTeam.add(memberName)
+        player.team = newTeam
+        playerManager.add(player)
+        teamManager.add(player.team)
+        gwdata.drawTeamMember(player)
+    else:
+        player.team = teamManager.getByTeamName(player)
+        player.team.add(newMemberName)
+        playerManager.add(player)
+        teamManager.add(player.team)
+        gwdata.drawTeamMember(player)
+
+    #player.joinIn(newMemberName)
+def gs2cQuitTeam(player,packet):
+    memberName = packet.unpackString()
+    if player.name == memberName:
+        player.team=""
+        playerManager.add(player)
+        gwdata.disDrawTeamMember()
+    else:
+        player.team.remove(memberName)
+        gwdata.drawTeamMember(player)

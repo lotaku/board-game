@@ -20,6 +20,8 @@ handler={
     9:player.gs2cInviteReply,
     10:player.gs2cKickOut,
     11:player.gs2cTransferCaptain,
+    12:player.gs2cJoinIn,
+    13:player.gs2cQuitTeam,
 
         }
 

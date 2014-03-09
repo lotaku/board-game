@@ -230,9 +230,9 @@ def playermove():
                                     1:("Invited",player.player.c2gsInvited),
                                     2:("kickedOut",player.player.c2gsKickOut),
                                     3:("TransferCaptain",player.player.c2gsTransferCaptain),
-                                    4:("applyInto","def4"),
-                                    5:("disband","def5"),
-                                    6:("QuitTeam","def6"),
+                                    4:("JionIn",player.player.c2gsJoinIn),
+                                    5:("QuitTeam",player.player.c2gsQuitTeam),
+                                    6:("Disband","def6"),
                                     7:("isOtherMember","def7"),
                                     8:("isMyCaption","def8"),
                                     9:("aCommonPlayer","def9"),
@@ -337,7 +337,7 @@ def mouseLClickOnCurrentMenu(playerUnderMouse,MENUCURRENT_KEY,menuCurrent, LastB
     鼠标点击在右键菜单上"""
     left,top = leftTopCoordsOfBox(LastBoxx+1, LastBoxy)
     width =BOXSIZE
-    height=BOXSIZE*2+GAPSIZE
+    height=BOXSIZE*3+GAPSIZE*3
     menuRect = pygame.Rect(left,top,width,height)
     if menuRect.collidepoint(mousex,mousey):
         lenght= range(len(MENUCURRENT_KEY))

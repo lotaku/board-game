@@ -98,15 +98,8 @@ class Player:
         packet = SendPacket(8)
         packet.packString(inviter.name)
         packet.send(self)
-    #def inviteReply(self,answer,inviteeName):
-        #self.gs2cInviteReplay(answer,inviteeName)
     def inviteReply(self,answer,inviter):
         self.gs2cInviteReplay(answer,inviter)
-    #def gs2cInviteReplay(self,answer,inviteeName):
-        #packet = SendPacket(9)
-        #packet.packString(answer)
-        #packet.packString(inviteeName)
-        #packet.send(self)
     def gs2cInviteReplay(self,answer,inviter):
         packet = SendPacket(9)
         if answer == "Yes":#在这里,让Server做判断,对么? 毕竟要更新服务器的队伍信息.
@@ -114,9 +107,15 @@ class Player:
             print inviter.team
             inviterTeam = teamManager.get(inviter)
             inviterTeam.add(self)
+            inviter.team = inviterTeam
+            print "复制team 给被邀请者"
+            self.team = inviterTeam
+            self.teamName = inviterTeam.name
+
             #更新Server信息
             teamManager.add(inviterTeam)
             playerManager.add(inviter)
+            self.updatePlayerOnServer(self,inviter)
 
             packet.packString(answer) # 答复
             packet.packString(inviter.name) #邀请者名字
@@ -129,25 +128,11 @@ class Player:
                 packet.packString(member.name)
             for member in inviterTeam.member:
                 packet.send(member)
-        #if answer == "Yes":#在这里,让Server做判断,对么? 毕竟要更新服务器的队伍信息.
-            #print "邀请者队伍实例",
-            #print inviter.team
-            #inviter.team = teamManager.get(inviter.team)
-            #inviter.team.add(self)
-            ##更新Server信息
-            #teamManager.add(inviter.team)
-            #playerManager.add(inviter)
+    def updatePlayerOnServer(*players):
+        for playerGet in players:
+            teamManager.add(playerGet.team)
+            playerManager.add(playerGet)
 
-            #packet.packString(answer) # 答复
-            #packet.packString(inviter.name) #邀请者名字
-            #packet.packString(self.name)#被邀请者名字
-            ##发送给队伍所有人
-            #memberNum = len(inviter.team.member)
-            #packet.packInt(memberNum) # 总队友数
-            #for member in inviter.team.member:
-                #packet.packString(member.name)
-            #for member in inviter.team.member:
-                #packet.send(member)
 
     def kickOut(self,memberName):
         self.gs2cKickOut(memberName)
@@ -176,6 +161,7 @@ class Player:
         self.iscaption=0
         newCaption = playerManager.getPlayerByName(newCaptionName)
         newCaption.iscaption=1
+        newCaption.teamName=self.teamName
         playerManager.add(self)
         playerManager.add(newCaption)
     def gs2cTransferCaption(self,newCaptionName):
@@ -188,7 +174,55 @@ class Player:
         print "所有的队员实例:",self.team.member
         for member in self.team.member:
             packet.send(member)
+    def joinIn(self,captionName):
+        print "self 是新队友"
+        #更新服务器信息
+        caption= playerManager.getPlayerByName(captionName)
+        caption.team = teamManager.get(caption)
+        caption.team.add(self)
+        self.team = caption.team
+        teamManager.add(caption.team)
+        playerManager.add(caption)
 
+        #self.gs2cJoinIn(captionName)
+        self.gs2cJoinIn(caption)
+
+    def gs2cJoinIn(self,caption):
+        packet = SendPacket(12)
+        packet.packString(caption.name)
+        packet.packString(self.name)
+        self.packetAllTeamMemberName(packet,caption)
+        self.sendToTeamMember(packet,caption)
+
+    def quitTeam(self):
+        self.team = teamManager.get(self)
+        packet = SendPacket(13)
+        packet.packString(self.name)
+        self.sendToTeamMember(packet,self)
+        #更新服务器信息
+        self.team=""
+        playerManager.add(self)
+
+    def sendToTeamMember(self,packet,player):
+        player.team = teamManager.get(player)
+        print "发送包给每个队友实例"
+        print "所有的队员实例:",player.team.member
+        for member in player.team.member:
+            packet.send(member)
+    #def sendToTeamMember(self,packet,player):
+        #self.team = teamManager.get(self)
+        #print "发送包给每个队友实例"
+        #print "所有的队员实例:",self.team.member
+        #for member in self.team.member:
+            #packet.send(member)
+
+    def packetAllTeamMemberName(self,packet,player):
+        playerTeam = teamManager.get(player)
+        memberNum = len(playerTeam.member)
+        packet.packInt(memberNum) # 总队友数
+        print "所有队员实例:",playerTeam.member
+        for member in playerTeam.member:
+            packet.packString(member.name)
 
 
 def c2gsEnterWorld(player,packet):
@@ -230,3 +264,10 @@ def c2gsKickOut(player,packet):
 def c2gsTransferCaption(player,packet):
     newCaptionName = packet.unpackString()
     player.transferCaption(newCaptionName)
+def c2gsJoinIn(player,packet):
+    print "player 是想加入的队友"
+    captionName = packet.unpackString()
+    player.joinIn(captionName)
+def c2gsQuitTeam(player,packet):
+    #memberName = packet.unpackString()
+    player.quitTeam()
