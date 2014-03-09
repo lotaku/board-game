@@ -113,6 +113,29 @@ class Player:
     def inviteAnswerReply(self):
         gwdata.inviteAnswerReply(self)
 
+    def c2gsKickOut(self,playerUnderMouse):
+        memberName = playerUnderMouse.name
+        packet = send_packet.SendPacket(10)
+        packet.packString(memberName)
+        packet.send()
+    def kickOut(self,inviterName,memberToOut):
+        if self.name == inviterName:
+            self.team = teamManager.getByTeamName(self)
+            print "获得队长team实例:",self.team
+            self.team.removeByName(memberToOut)
+            teamManager.add(self.team)
+            playerManager.add(self)
+            print "blit新的队伍,在队长客户端里:"
+            gwdata.drawTeamMember(self)
+        elif self.name == memberToOut:
+            teamManager.remove(self.team)
+            self.team=""
+            gwdata.disDrawTeamMember()
+            playerManager.add(self)
+            print '在被踢出的玩家客户端里,重新blit队伍所在'
+
+
+
 
 
 player=Player()
@@ -301,4 +324,7 @@ def gs2cInviteReply(player,packet):
     #answer = packet.unpackString()
     #inviteeName = packet.unpackString()
     #player.inviteAnswerReply(answer,inviteeName)
-
+def gs2cKickOut(player,packet):
+    inviterName = packet.unpackString()
+    memberToOut= packet.unpackString()
+    player.kickOut(inviterName,memberToOut)

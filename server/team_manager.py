@@ -10,10 +10,14 @@ class TeamManager():
         del self.teams[team.name]
 
     def get(self,player):
-        try:
+        return self.teams[player.teamName]
+        #try:
+        #team = self.teams[player.team.name]
+
             #return self.teams[player.team.name]
-            return self.teams[player.team]
-        except:
-            return None
+
+            #return self.teams[player.team]
+        #except:
+            #return None
 
 teamManager = TeamManager()

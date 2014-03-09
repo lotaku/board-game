@@ -20,5 +20,7 @@ class Team():
             self.member.append(playerName)
     def remove(self,player):
         self.member.remove(player)
+    def removeByName(self,playerName):
+        self.member.remove(playerName)
 team=Team()
 

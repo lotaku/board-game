@@ -149,6 +149,26 @@ class Player:
             #for member in inviter.team.member:
                 #packet.send(member)
 
+    def kickOut(self,memberName):
+        self.gs2cKickOut(memberName)
+        print memberName
+        member = playerManager.getPlayerByName(memberName)
+        self.team = teamManager.get(self)
+        print "玩家的队伍成员",self.team.member
+        self.team.remove(member)
+        print "成功移除会员 member 实例"
+        teamManager.add(self.team)
+        playerManager.add(self)
+        #self.gs2cKickOut()
+    def gs2cKickOut(self,memberName):
+        packet = SendPacket(10)
+        packet.packString(self.name)
+        packet.packString(memberName)
+        self.team = teamManager.get(self)
+        for member in self.team.member:
+            packet.send(member)
+        print "成功发送给队伍里的所有人"
+
 
 def c2gsEnterWorld(player,packet):
     name = packet.unpackString()
@@ -183,3 +203,6 @@ def c2gsInviteReplay(player,packet):
     inviter = playerManager.getPlayerByName(inviterName)
     #player,这里是指被邀请者
     player.inviteReply(answer,inviter)
+def c2gsKickOut(player,packet):
+    memberName = packet.unpackString()
+    player.kickOut(memberName)
