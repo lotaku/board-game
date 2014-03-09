@@ -16,7 +16,18 @@ class TeamManager():
         try:
             return self.teams[player.team]
         except KeyError:
-            print "该玩家没有加入任何队伍"
+            print "玩家队伍的名字:期待一个str name:",player.team
+            print "team_manager.py:19line :该玩家没有加入任何队伍"
             return None
 
+    def getByTeamName(self,player):
+        #print 'teamManager_11行:玩家队伍名',player.team
+        #print "当teamManager_12行:右键下玩家的名字",player.name
+        #print "当teamManager_13行:前所有队伍",self.teams
+        try:
+            return self.teams[player.teamName]
+        except KeyError:
+            print "玩家队伍的名字:期待一个str name:",player.teamName
+            print "team_manager.py:19line :该玩家没有加入任何队伍"
+            return None
 teamManager = TeamManager()

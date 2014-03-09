@@ -11,7 +11,8 @@ class TeamManager():
 
     def get(self,player):
         try:
-            return self.teams[player.team.name]
+            #return self.teams[player.team.name]
+            return self.teams[player.team]
         except:
             return None
 

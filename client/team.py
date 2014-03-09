@@ -16,7 +16,8 @@ class Team():
         #player.iscaption=1
         #player.team=self
     def add(self,playerName):
-        self.member.append(playerName)
+        if playerName not in self.member:
+            self.member.append(playerName)
     def remove(self,player):
         self.member.remove(player)
 team=Team()

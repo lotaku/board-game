@@ -9,6 +9,7 @@ from player_manager import playerManager
 import time
 from team import team
 from team_manager import teamManager
+import menu
 
 
 EXITKEY=0
@@ -175,7 +176,8 @@ def getBoxAtPixel(x, y):
 
 def playermove():
     global EXITKEY,MENUCURRENT,MENUCURRENT_KEY,LOCAL_PLAYER,\
-            askMenuDict,boxx,boxy,LastBoxx,LastBoxy,playerUnderMouse
+            askMenuDict,boxx,boxy,LastBoxx,LastBoxy,playerUnderMouse,\
+            playerUnderMouseArgm
 
     #askMenuDict={}
     #print '所有玩家',playerManager.remotePlayers
@@ -194,7 +196,8 @@ def playermove():
             #是否点包含在右键菜单内:
             #if event.button == 1 and isCollidepoint:
             if event.button == 1 and len(MENUCURRENT):
-                MENUCURRENT = mouseLClickOnCurrentMenu(playerUnderMouse,MENUCURRENT_KEY,MENUCURRENT, LastBoxx,LastBoxy,mousex,mousey)
+                #MENUCURRENT = mouseLClickOnCurrentMenu(playerUnderMouse,MENUCURRENT_KEY,MENUCURRENT, LastBoxx,LastBoxy,mousex,mousey)
+                MENUCURRENT = mouseLClickOnCurrentMenu(playerUnderMouseArgm,MENUCURRENT_KEY,MENUCURRENT, LastBoxx,LastBoxy,mousex,mousey)
                 continue
 
             #玩家左击移动
@@ -219,6 +222,7 @@ def playermove():
                         #print type(playerUnderMouse)
                         #print "人物的X:",playerUnderMouse.x
                         if playerUnderMouse.x == boxx and playerUnderMouse.y == boxy:
+                            playerUnderMouseArgm = playerUnderMouse
                             #全功能菜单,初始化
                             global menuRightAll
                             menuRightAll={
@@ -228,46 +232,151 @@ def playermove():
                                     3:("transferCaptain","def3"),
                                     4:("applyInto","def4"),
                                     5:("disband","def5"),
+                                    6:("QuitTeam","def6"),
+                                    7:("isOtherMember","def7"),
+                                    8:("isMyCaption","def8"),
+                                    9:("aCommonPlayer","def9"),
+                                    10:("U,I,caption","def10"),
                                         }
                             if playerUnderMouse.x == LOCAL_PLAYER.x and playerUnderMouse.y == LOCAL_PLAYER.y:#右击player A 自己
                                 print '右键下是本人'
-                                #player:是本地玩家 A ,playerundermouse 右键下的玩家 B
-                                #if playerUnderMouse.x == player.player.x and playerUnderMouse.y == player.player.y:#右击player A 自己
-                                LOCAL_PLAYER = playerManager.get(localPlayerName)
-                                if LOCAL_PLAYER.iscaption:
-                                    showRClickMenu([5])# 显示右键菜单:解散队伍
-                                else:
-                                    showRClickMenu([0])# 显示右键菜单:创建队伍
-                            else :#playerUnderMouse.x==boxx and playerUnderMouse.y == boxy:
-                                #不是本人 player A
-                                #print '右键下的玩家是:', playerUnderMouse.name
-                                #判断两个玩家是否有一个队伍
-                                #print "gaL242当前所有队伍",teamManager.teams
-                                #localPlayerTeam = teamManager.get(LOCAL_PLAYER)
-                                LOCAL_PLAYER = playerManager.get(localPlayerName)
-                                LOCAL_PLAYER_team = teamManager.get(LOCAL_PLAYER)
-                                #playerUnderMouseTeam  = teamManager.get(playerUnderMouse)
-                                if LOCAL_PLAYER.iscaption: # A 是队长
-                                    #print "本地队伍实例",LOCAL_PLAYER_team
-                                    #print "本地队伍实例的成员:",LOCAL_PLAYER_team.member
-                                    #print '本地玩家名字确认是:?',localPlayerName
-                                    if playerUnderMouse.iscaption: #B 是队长
-                                        print '都是队长功能待定'
-                                    elif playerUnderMouse.name in LOCAL_PLAYER_team.member:
-                                        print 'B不是队长,并且在A 的队伍里,获得当前右键菜单'
-                                        showRClickMenu([2,3])# 踢出队伍,转让队长
-                                    else:#
-                                        print 'B不是队长,并且不在 A 的队伍里,获得当前右键菜单'
-                                        showRClickMenu([1])# 邀请
-                                else:#A 不是队长
-                                    if playerUnderMouse.iscaption:#B 是队长
-                                        if LOCAL_PLAYER.team:# A 是某队队员
-                                            print "# A 是某队队员"
+                                print playerUnderMouse.menu
+                                if not playerUnderMouse.menu:
+                                    print " 没有右键菜单, --> 菜单初始化"
+                                    menu.Menu(menuRightAll,playerUnderMouse)
+                                    playerUnderMouse.menu.updateMenuOption([0])
+                                print "显示右键菜单"
+                                playerUnderMouse.menu.showMenuOption()
+                            else:
+                                print "右键下不是A"
+                                if not playerUnderMouse.menu:
+                                    print "没有右键菜单, --> 菜单初始化 --> 右键下是个普通玩家"
+                                    menu.Menu(menuRightAll,playerUnderMouse)
+                                    LOCAL_PLAYER = playerManager.get(localPlayerName)
+                                    if LOCAL_PLAYER.iscaption:
+                                        print "a is caption:"
+
+                                        if playerUnderMouse.iscaption:
+                                            print 'b is caption'
+                                            playerUnderMouse.menu.updateMenuOption([10])
+                                        elif playerUnderMouse.teamName:
+                                            print 'b is a member'
+                                            playerUnderMouse.menu.updateMenuOption([7])
                                         else:
-                                            print "画 菜单内容:申请入队"
-                                            showRClickMenu([4])
-                                    else:#B 不是队长
-                                        print "#都是没有队伍的玩家"
+                                            print 'b is a common player'
+                                            playerUnderMouse.menu.updateMenuOption([1])
+
+                                    elif LOCAL_PLAYER.teamName:
+                                        print "a is a member"
+
+                                        if playerUnderMouse.iscaption:
+                                            print 'b is caption'
+                                            #playerUnderMouse.menu.updateMenuOption([1])
+                                        elif playerUnderMouse.teamName:
+                                            print 'b is a member'
+                                            #playerUnderMouse.menu.updateMenuOption([1])
+                                        else:
+                                            print 'b is a common player'
+                                    else:
+                                        print "a is common player"
+
+                                        if playerUnderMouse.iscaption:
+                                            print 'b is caption'
+                                            playerUnderMouse.menu.updateMenuOption([4])
+                                        elif playerUnderMouse.teamName:
+                                            print 'b is a member'
+                                        else:
+                                            print 'b is a common player'
+                                            playerUnderMouse.menu.updateMenuOption([0])
+                                print "显示右键菜单"
+                                playerUnderMouse.menu.showMenuOption()
+
+
+#=========================================================
+                            #if playerUnderMouse.x == LOCAL_PLAYER.x and playerUnderMouse.y == LOCAL_PLAYER.y:#右击player A 自己
+                                #print '右键下是本人'
+                                ##player:是本地玩家 A ,playerundermouse 右键下的玩家 B
+                                ##if playerUnderMouse.x == player.player.x and playerUnderMouse.y == player.player.y:#右击player A 自己
+                                #LOCAL_PLAYER = playerManager.get(localPlayerName)
+                                #if LOCAL_PLAYER.team:# 在某个队伍里
+                                    #if LOCAL_PLAYER.iscaption:#是队长
+                                        #showRClickMenu([5])# 显示右键菜单:解散队伍
+                                    #else:#不是队长
+                                        #showRClickMenu([6]) # 显示退出队伍
+                                ##if LOCAL_PLAYER.iscaption:
+                                    ##showRClickMenu([5])# 显示右键菜单:解散队伍
+                                #else: #不在任何队伍
+                                    #showRClickMenu([0])# 显示右键菜单:创建队伍
+                            #else :#playerUnderMouse.x==boxx and playerUnderMouse.y == boxy:
+                                ##不是本人 player A
+                                ##print '右键下的玩家是:', playerUnderMouse.name
+                                ##判断两个玩家是否有一个队伍
+                                ##print "gaL242当前所有队伍",teamManager.teams
+                                ##localPlayerTeam = teamManager.get(LOCAL_PLAYER)
+                                #LOCAL_PLAYER = playerManager.get(localPlayerName)
+                                #LOCAL_PLAYER.team = teamManager.get(LOCAL_PLAYER)
+
+                                #LOCAL_PLAYER_team = teamManager.get(LOCAL_PLAYER)
+
+                                #playerUnderMouse.team =  teamManager.get(playerUnderMouse)
+
+                                #print "期待:获得本地玩家的 队伍 实例:", LOCAL_PLAYER_team
+                                #print "期待:获得本地玩家的 队伍 实例LOCAL_PLAYER.team:", LOCAL_PLAYER_team
+                                #if playerUnderMouse.team:# B 在某队伍里
+                                    #print "B 在某队伍里"
+                                    #if LOCAL_PLAYER.team:
+                                        #print "# A 也在某队伍里"
+                                        #if playerUnderMouse.iscaption: # B 是队长
+                                            #print "# B 是队长"
+                                            #if LOCAL_PLAYER.iscaption: # A 也是队长
+                                                #print "都是队长,功能待定"
+                                            #else:# A 不是队长
+                                                #if LOCAL_PLAYER.name in playerUnderMouse.team.member:
+                                                    #print "# A 在 B 的队伍里 "
+                                                #else:
+                                                    #print "# A 不在 B 的队伍里 --> 申请加入队伍"
+                                                    #showRClickMenu([4])
+                                        #else:
+                                            #print "# B 不是队长:"
+                                            #if LOCAL_PLAYER.iscaption: # A 是队长
+                                                #print "# A 是队长"
+                                                #if playerUnderMouse.name in LOCAL_PLAYER.team.member:
+                                                    #print "# B 在队伍 A 里面 --># 踢出队伍,转让队长"
+                                                    #showRClickMenu([2,3])
+
+                                    #else: # A 不在某队伍里
+                                        #print "pass"
+                                #else:
+                                    #print "B 不在 任何队伍里"
+                                    #showRClickMenu([1])# 邀请
+
+
+
+                                #================================================
+                                #if LOCAL_PLAYER.iscaption: # A 是队长
+                                    ##print "本地队伍实例",LOCAL_PLAYER_team
+                                    ##print "本地队伍实例的成员:",LOCAL_PLAYER_team.member
+                                    ##print '本地玩家名字确认是:?',localPlayerName
+                                    ##if playerUnderMouse.team :
+
+                                    #if playerUnderMouse.iscaption: #B 是队长
+                                        #print '都是队长功能待定'
+                                    #elif LOCAL_PLAYER_team:#本地玩家 在某个队伍之内
+                                        #if playerUnderMouse.name in LOCAL_PLAYER_team.member:
+                                            #print 'B不是队长,并且在A 的队伍里,获得当前右键菜单'
+                                            #showRClickMenu([2,3])# 踢出队伍,转让队长
+                                        #else:#
+                                            #print 'B不是队长,并且不在 A 的队伍里,获得当前右键菜单'
+                                            #showRClickMenu([1])# 邀请
+                                #else:#A 不是队长
+                                    #if playerUnderMouse.iscaption:#B 是队长
+                                        #if LOCAL_PLAYER.team:# A 是某队队员
+                                            #print "# A 是某队队员"
+                                        #else:
+                                            #print "画 菜单内容:申请入队"
+                                            #showRClickMenu([4])
+                                    #else:#B 不是队长
+                                        #print "#都是没有队伍的玩家"
 
 def exitGame():
     if EXITKEY:
@@ -396,45 +505,69 @@ def inviteAskReply(mousex,mousey):
         if buttonRect.collidepoint(mousex,mousey):
             print '已经点击回答'
             player.player.c2gsInviteReply(buttonString,inviterName)
-            if buttonString == "Yes":
-                print '已回答yes'
-                inviter =  playerManager.get(inviterName)
-                inviterTeam = teamManager.get(inviter)
-                inviterTeam.add(LOCAL_PLAYER.name)
-                LOCAL_PLAYER.team=inviterTeam
-                playerManager.add(LOCAL_PLAYER)
-                teamManager.add(inviterTeam)
-                print "#在DISPLAYSURF上消除 message"
-                fillWithBGCOLOR(0,0,WINDOWWIDTH,YMARGIN)
-                drawTeamMember(LOCAL_PLAYER)
-            else:
-                print "#todo: 已回答否"
+            #if buttonString == "Yes":
+                #print '已回答yes'
+                #inviter =  playerManager.get(inviterName)
+                #inviterTeam = teamManager.get(inviter)
+                #inviterTeam.add(LOCAL_PLAYER.name)
+                #LOCAL_PLAYER.team=inviterTeam
+                #playerManager.add(LOCAL_PLAYER)
+                #teamManager.add(inviterTeam)
+                #print "#在DISPLAYSURF上消除 message"
+                #fillWithBGCOLOR(0,0,WINDOWWIDTH,YMARGIN)
+                #drawTeamMember(LOCAL_PLAYER)
+            #else:
+                #print "#todo: 已回答否"
 
+    print "#在DISPLAYSURF上消除 message"
+    fillWithBGCOLOR(0,0,WINDOWWIDTH,YMARGIN)
     print "#清空askMenuDict"
     askMenuDict={}
     #print "#在DISPLAYSURF上消除 message"
     #fillWithBGCOLOR(0,0,WINDOWWIDTH,YMARGIN)
-def inviteAnswerReply(answer,inviteeName):
-    if answer == "Yes":
-        LOCAL_PLAYER = playerManager.get(localPlayerName)
-        LOCAL_PLAYER_team = teamManager.get(LOCAL_PLAYER)
-        LOCAL_PLAYER_team.add(inviteeName)
-        print "刚刚加入了新的成员,新的队伍成员:"
-        print LOCAL_PLAYER_team.member
-        LOCAL_PLAYER.team=LOCAL_PLAYER_team
+def inviteAnswerReply (player):
+    print "#先画背景,在画内容"
+    print "本地玩家的名字:" ,
+    print player.name
+    print "本地玩家的队伍实例",
+    print player.team
 
-        print "#先画背景,在画内容"
-        print "本地玩家的名字:" ,
-        print LOCAL_PLAYER.name
-        print "本地玩家的队伍实例",
-        print LOCAL_PLAYER.team
-        teamManager.add(LOCAL_PLAYER_team)
-        playerManager.add(LOCAL_PLAYER)
-        fillWithBGCOLOR(0,0,BOARDWIDTH,YMARGIN)
-        drawTeamMember(LOCAL_PLAYER)
-#还需要 回复S? 让队员更新? 还是前面就应该先更新了?
-    else:
-        print "答案是否"
+    fillWithBGCOLOR(0,0,BOARDWIDTH,YMARGIN)
+    drawTeamMember(player)
+def updatePlayer(player):
+    playerUpdated = playerManager.get(player.name)
+    return playerUpdated
+
+#def inviteAnswerReply (LOCAL_PLAYER,answer,inviter,inviterName,invitee,inviteeName,memberNum):
+    #if answer == "Yes":
+        #if player.name == inviteeName: #这个玩家是被邀请者
+            #newTeam = team.Team()
+            #newTeam.create(inviter)
+            #player.team = newTeam
+            #for i in range(memberNum):
+                #memberName = packet.unpackString()
+                #player.team.add(memberName)
+
+    #if answer == "Yes":
+        #LOCAL_PLAYER = playerManager.get(localPlayerName)
+        #LOCAL_PLAYER_team = teamManager.get(LOCAL_PLAYER)
+        #LOCAL_PLAYER_team.add(inviteeName)
+        #print "刚刚加入了新的成员,新的队伍成员:"
+        #print LOCAL_PLAYER_team.member
+        #LOCAL_PLAYER.team=LOCAL_PLAYER_team
+
+        #print "#先画背景,在画内容"
+        #print "本地玩家的名字:" ,
+        #print LOCAL_PLAYER.name
+        #print "本地玩家的队伍实例",
+        #print LOCAL_PLAYER.team
+        #teamManager.add(LOCAL_PLAYER_team)
+        #playerManager.add(LOCAL_PLAYER)
+        #fillWithBGCOLOR(0,0,BOARDWIDTH,YMARGIN)
+        #drawTeamMember(LOCAL_PLAYER)
+##还需要 回复S? 让队员更新? 还是前面就应该先更新了?
+    #else:
+        #print "答案是否"
 
 def fillWithBGCOLOR(top,left,width,height):
     rect=pygame.Rect(top,left,width,height)
