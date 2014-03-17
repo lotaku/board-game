@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 import player
+#from player import Player
+#x2=player.Player()
+#print "创建玩家实例：x2",x2
 handler={
     0:player.gs2cOtherExitGame,
     1:player.gs2cEnterWorld,
@@ -20,5 +23,5 @@ handler={
         }
 
 def handlePacket(packet):
-    handler[packet.id](player.player,packet)
+    handler[packet.id](player.localPlayer,packet)
 

@@ -3,10 +3,11 @@
 import pygame
 import sys
 import player
-from pygame.locals import K_ESCAPE,QUIT,KEYUP,K_RETURN
+from pygame.locals import K_ESCAPE,QUIT,KEYUP,K_RETURN,MOUSEBUTTONDOWN
 from player_manager import playerManager
-import menu
-
+import gwElements
+from gwElements.game_Win import gameWin
+from gwElements.game_world import gameWorld
 
 EXITKEY=0
 FPS=30
@@ -47,6 +48,10 @@ LIGHTBGCOLOR = GRAY
 BOXCOLOR = WHITE
 HIGHLIGHTCOLOR = BLUE
 HAVE_DRAW_TEAM_MEMBER =0
+
+# 初始化某些类
+#玩家自己
+
 class MakeFont():
 
     def __init__(self,text,top,left):
@@ -67,19 +72,19 @@ class MakeFont():
         self.textSurf=textSurf
         self.textRect=textRect
 
-class GameWorld():
-    def __init__(self):
-        self.windowwidth=680
-        self.windowheight=580
-        self.caption="Board Game"
-        self.bgcolor=(60, 60, 100)
-    def play(self):
-        pygame.init()
-        pygame.display.set_caption(self.caption)
-        self.displaySurf=pygame.display.set_mode((self.windowwidth,self.windowheight))
-        self.displaySurf.fill(self.bgcolor)
+#class GameWin():
+    #def __init__(self):
+        #self.WINDOWWIDTH=680
+        #self.WINDOWHEIGHT=580
+        #self.caption="Board Game"
+        #self.bgcolor=(60, 60, 100)
+    #def play(self):
+        #pygame.init()
+        #pygame.display.set_caption(self.caption)
+        #self.displaySurf=pygame.display.set_mode((self.WINDOWWIDTH,self.WINDOWHEIGHT))
+        #self.displaySurf.fill(self.bgcolor)
 
-gameWorld=GameWorld()
+#gameWin=GameWin()
 class ClientRender():
     def __init__(self):
         self.fps=30
@@ -119,91 +124,223 @@ class ShowHint():
         fontObj = FontObj(self.text)
         self.textSurf= fontObj.textSurf
     def blit(self):
-        gameWorld.displaySurf.blit(self.textSurf, self.coordinates)
+        gameWin.displaySurf.blit(self.textSurf, self.coordinates)
 
 
+
+print dir(player)
+print player.__name__
+print player.__doc__
+print player.__file__
 class LoginWin():
     def __init__(self):
         pass
+
     def loop(self):
         self.hint_enterYourName = ShowHint()
         self.hint_enterYourName.updateText('Enter Your UserName (Submit with "ENTER" key)',(50,80))
         self.hint_enterYourName.blit()
-        localPlayer = player.Player()
-        i=1
         while True:
-            i+=1
-            print i
             breakKey=0
             for event in pygame.event.get():
                 if event.type == QUIT or (event.type==KEYUP and event.key==K_ESCAPE):
                     pygame.quit()
                     sys.exit()
                 elif event.type == pygame.KEYDOWN and event.key != K_RETURN:
-                    self.enterPlayerName(localPlayer,event)
+                    self.enterPlayerName(player.localPlayer,event)
                 elif event.type == pygame.KEYDOWN and event.key == K_RETURN:
-                    localPlayer.c2gsEnterWorld()
+                    print "commit something..."
+                    player.localPlayer.c2gsEnterWorld()
                     breakKey=1
             if breakKey:
                 break
             clientRender.render()
+    def createAnewPlayer(self):
+        from player import Player
+        return Player()
 
-    def enterPlayerName(self,localPlayer,event):
-        localPlayer.name += event.unicode
-        localPlayerNameText = FontObj(localPlayer.name)
-        gameWorld.displaySurf.blit(localPlayerNameText.textSurf,(255,200))
+    def enterPlayerName(self,playerArgm,event):
+        playerArgm.name += event.unicode
+        localPlayerNameText = FontObj(playerArgm.name)
+        gameWin.displaySurf.blit(localPlayerNameText.textSurf,(255,200))
 
 
 loginWin=LoginWin()
 
-#def loginWin():
-    #global DISPLAYSURF, player,FONT_OBJ,localPlayerName,LOCAL_PLAYER
-    #pygame.init()
-    #FONT_OBJ = pygame.font.Font('freesansbold.ttf', 22)
-    #DISPLAYSURF=pygame.display.set_mode((WINDOWWIDTH,WINDOWHEIGHT))
 
-    #pygame.display.set_caption("Board Game")
-    #DISPLAYSURF.fill(NAVYBLUE)
-    #showEnterHint()
-    #pygame.display.update()
-    #while True:
-        #breakKey=0
-        #for event in pygame.event.get():
-            #if event.type == QUIT or (event.type==KEYUP and event.key==K_ESCAPE):
-                #pygame.quit()
-                #sys.exit()
-            #elif event.type == pygame.KEYDOWN and event.key != K_RETURN:
-                #enterPlayerName(player.player,event)
-            #elif event.type == pygame.KEYDOWN and event.key == K_RETURN:
-                #player.player.c2gsEnterWorld()
-                #playerManager.add(player.player)
-                #localPlayerName=player.player.name
-                #LOCAL_PLAYER=player.player
-                #breakKey=1
-        #if breakKey:
-            #break
-        #pygame.display.update()
-        #FPSCLOCK.tick(FPS)
+#class GameWorld():
+    #def __init__(self):
+        ##gameWin.displaySurf.fill(bgcolor)
+        #self.BOXCOLOR = (255, 255, 255) #WHITE
+        #self.BOXSIZE=85
+        #self.GAPSIZE=10
+        #self.BOARDWIDTH =6
+        #self.BOARDHEIGHT = 4
+        #print "gameWin 模块的属性：",dir(gameWin)
+        #self.XMARGIN = int((gameWin.WINDOWWIDTH - (self.BOARDWIDTH* (self.BOXSIZE + self.GAPSIZE))) / 2)
+        #self.YMARGIN = int((gameWin.WINDOWHEIGHT - (self.BOARDHEIGHT * (self.BOXSIZE + self.GAPSIZE))) / 2)
+        ##                R    G    B
+        #self.GRAY     = (100, 100, 100)
+        #self.NAVYBLUE = ( 60,  60, 100)
+        #self.WHITE    = (255, 255, 255)
+        #self.RED      = (255,   0,   0)
+        #self.GREEN    = (  0, 255,   0)
+        #self.BLUE     = (  0,   0, 255)
+        #self.YELLOW   = (255, 255,   0)
+        #self.ORANGE   = (255, 128,   0)
+        #self.PURPLE   = (255,   0, 255)
+        #self.CYAN     = (  0, 255, 255)
 
-def showEnterHint():
-    global DISPLAYSURF
-    fontObj = pygame.font.Font('freesansbold.ttf', 22)
-    wellcomSurfaceObj = fontObj.render('Enter Your UserName (Submit with "ENTER" key)', True, GREEN, NAVYBLUE)
-    DISPLAYSURF.blit(wellcomSurfaceObj, (55,150))
+        #self.FONT_COLOR            = RED
+        #self.BGCOLOR               = NAVYBLUE
+        #self.LIGHTBGCOLOR          = GRAY
+        #self.BOXCOLOR              = WHITE
+        #self.HIGHLIGHTCOLOR        = BLUE
+        #self.HAVE_DRAW_TEAM_MEMBER = 0
+        #self.girlImg               = pygame.image.load("../catgirl.png")
+        #self.boyImg                = pygame.image.load('../boy.png')
+    #def createMap(self):
+        #gameWin.displaySurf.fill(self.BGCOLOR)
+        #for boxx in range(gameWorld.BOARDWIDTH):
+            #for boxy in range(gameWorld.BOARDHEIGHT):
+                #left, top = self.leftTopCoordsOfBox(boxx, boxy)
+                #pygame.draw.rect(gameWin.displaySurf, self.BOXCOLOR,(left, top, self.BOXSIZE, self.BOXSIZE))
 
-def enterPlayerName(player,event):
-    player.name += event.unicode
-    fontObj = pygame.font.Font('freesansbold.ttf',22)
-    playerNameSurf=fontObj.render(player.name,True,ORANGE,NAVYBLUE)
-    DISPLAYSURF.blit(playerNameSurf,(255,200))
+    #def leftTopCoordsOfBox(self, boxx, boxy):
+        #left = boxx * (self.BOXSIZE + self.GAPSIZE) + self.XMARGIN
+        #top = boxy * (self.BOXSIZE + self.GAPSIZE) + self.YMARGIN
+        #return (left, top)
+    #def getBoxAtPixel(self,x, y):
+        #for boxx in range(gameWorld.BOARDWIDTH):
+            #for boxy in range(gameWorld.BOARDHEIGHT):
+                #left, top = gameWorld.leftTopCoordsOfBox(boxx, boxy)
+                #boxRect = pygame.Rect(left, top, gameWorld.BOXSIZE, gameWorld.BOXSIZE)
+                #if boxRect.collidepoint(x, y):
+                    #return (boxx, boxy)
+        #return (None, None)
 
-def initGameWorld():
-    DISPLAYSURF.fill(BGCOLOR)
-    for boxx in range(BOARDWIDTH):
-        for boxy in range(BOARDHEIGHT):
-            left, top = leftTopCoordsOfBox(boxx, boxy)
-            pygame.draw.rect(DISPLAYSURF, BOXCOLOR, (left, top, BOXSIZE, BOXSIZE))
+    #def showRClickMenu(keyList):
+        #"""显示指定菜单"""
+        #global MENUCURRENT,menuRightAll,LastBoxx,LastBoxy,boxx,boxy,MENUCURRENT_KEY
 
+        #MENUCURRENT_KEY=keyList
+        #for key in MENUCURRENT_KEY:
+            #MENUCURRENT[key]=menuRightAll[key]
+        #LastBoxx,LastBoxy= drawCurrentMenu(MENUCURRENT_KEY,MENUCURRENT,boxx,boxy)
+
+    #def reImport_player(self):
+        #import player
+        #print "重新import player 获得 localplayer：",player.localPlayer
+        #return player
+
+#gameWorld=GameWorld()
+
+class Draw():
+    def __init__(self):
+        pass
+    def drawPlayer(self,playerArgm):
+        """地图每个格式也都有属性，比如谁在那里。"""
+        # 画一个格子
+        left, top = gameWorld.leftTopCoordsOfBox(playerArgm.x,playerArgm.y)
+        pygame.draw.rect(gameWin.displaySurf, gameWorld.BOXCOLOR, (left, top, gameWorld.BOXSIZE, gameWorld.BOXSIZE))
+        #画玩家图像
+        gameWin.displaySurf.blit(girlImg, (left+20,top))
+        #画玩家名字
+        userNameFontObj= FontObj(playerArgm.name)
+        gameWin.displaySurf.blit(userNameFontObj.textSurf, (left+20,top+60))
+        print "刷新测试："
+        pygame.display.update()
+
+    def erasePlayer(self,playerArgm):
+        left, top = gameWorld.leftTopCoordsOfBox(playerArgm.x,playerArgm.y)
+        pygame.draw.rect(gameWin.displaySurf, gameWorld.BOXCOLOR, (left, top, gameWorld.BOXSIZE, gameWorld.BOXSIZE))
+
+    def drawMenu(self,menuArgm,boxx,boxy):
+        """
+        """
+        #画出菜单背景
+        left,top = gameWorld.leftTopCoordsOfBox(boxx+1, boxy)
+        width    = gameWorld.BOXSIZE
+        height   = gameWorld.BOXSIZE*3+gameWorld.GAPSIZE*2
+
+        #菜单显示位置 和 大小
+        menuArgm.positionAndSize = (left,top,width,height)
+        #菜单背景 rect 对象
+        menuArgm.bgRect = pygame.draw.rect(gameWin.displaySurf,gameWorld.RED,menuArgm.positionAndSize)
+        #菜单选项高度
+        menuArgm.menuLineHeight = gameWorld.BOXSIZE/2
+        # 记录循环次数，用于计算 菜单选项的位置
+        i=0
+        for key in menuArgm.menuOptionList:
+            print '画菜单'
+            menuLineSurf,menuLineRect = makeText(menuArgm.menuOption[key][0],WHITE,BGCOLOR,left,top+menuArgm.menuLineHeight*i)
+            gameWorld.blit(menuLineSurf,menuLineRect)
+            i+=1
+
+draw=Draw()
+
+class Menu():
+    def __init__(self):
+        pass
+    def createRightMenu(self):
+        import player
+        menuOption={
+                0:("TeamCreat",player.localPlayer.c2gsTeamCreate),
+                1:("Invited",player.localPlayer.c2gsInvited),
+                2:("kickedOut",player.localPlayer.c2gsKickOut),
+                3:("TransferCaptain",player.localPlayer.c2gsTransferCaptain),
+                4:("JionIn",player.localPlayer.c2gsJoinIn),
+                5:("QuitTeam",player.localPlayer.c2gsQuitTeam),
+                6:("Disband","def6"),
+                    }
+        self.menuOption=menuOption
+        self.menuOptionLength= len(menuOption)
+
+        self.menuOptionList = []
+        print menuOption
+        for key, _ in menuOption.items():
+            self.menuOptionList.append(key)
+
+
+
+rightMenu = Menu()
+rightMenu.createRightMenu()
+
+
+
+class PlayerAction():
+    def __init__(self):
+        pass
+
+    def moveCapture(self):
+        for event in pygame.event.get():
+            if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
+                player.localPlayer.c2gsExitGame()
+            elif event.type == MOUSEBUTTONDOWN :
+                mousex,mousey = event.pos
+                ##是否点包含在右键菜单内:
+                #if event.button == 1 and len(MENUCURRENT):
+                    #MENUCURRENT = mouseLClickOnCurrentMenu(playerUnderMouseArgm,MENUCURRENT_KEY,MENUCURRENT, LastBoxx,LastBoxy,mousex,mousey)
+                    #continue
+                #玩家左击移动
+                if event.button == 1:
+                    mousex,mousey = event.pos
+                    boxx,boxy = gameWorld.getBoxAtPixel(mousex,mousey)
+                    if boxx !=None and boxy != None:
+                        player.localPlayer.c2gsPlayerMove(boxx,boxy)
+                    #else:
+                        #if len(askMenuDict):
+                            #inviteAskReply(mousex,mousey)
+                if event.button == 3:  # 鼠标右击,判断是否画出右键菜单
+                    mousex,mousey = event.pos
+                    boxx,boxy = gameWorld.getBoxAtPixel(mousex,mousey)
+                    if boxx != None and boxy != None:
+                        #判断x,y 是否有玩家,并取得该玩家
+                        for _,playerUnderMouse in playerManager.remotePlayers.items():
+                            if playerUnderMouse.x == boxx and playerUnderMouse.y == boxy:
+                                #playerUnderMouseArgm = playerUnderMouse
+                                draw.drawMenu(rightMenu,boxx,boxy)
+playerAction= PlayerAction()
 
 def erasePlayer(player):
     left, top = leftTopCoordsOfBox(player.x,player.y)
@@ -227,38 +364,6 @@ def drawPlayer(player):
     DISPLAYSURF.blit(userNameSurfaceObj, (left+20,top+60))
     print "刷新测试："
     pygame.display.update()
-
-def drawPlayerTemp(player,boxx,boxy):
-    global BOXX_MOVE_TEMP,BOXY_MOVE_TEMP
-    """
-    鼠标移动时，显示英雄"""
-    #消除上次临时显示的player
-    left, top = leftTopCoordsOfBox(BOXX_MOVE_TEMP,BOXY_MOVE_TEMP)
-    pygame.draw.rect(DISPLAYSURF, BOXCOLOR, (left, top, BOXSIZE, BOXSIZE))
-    #显示这次的临时player
-    left, top = leftTopCoordsOfBox(boxx,boxy)
-    DISPLAYSURF.blit(girlImg, (left+20,top))
-    fontObj = pygame.font.Font('freesansbold.ttf', 22)
-    userNameSurfaceObj = fontObj.render(player.name, True, NAVYBLUE)
-    DISPLAYSURF.blit(userNameSurfaceObj, (left+20,top+60))
-
-    BOXX_MOVE_TEMP = boxx
-    BOXY_MOVE_TEMP = boxy
-def drawGirl(player):
-    left, top = leftTopCoordsOfBox(player.x,player.y)
-    DISPLAYSURF.blit(girlImg, (left+20,top))
-    fontObj = pygame.font.Font('freesansbold.ttf', 22)
-    userNameSurfaceObj = fontObj.render(player.name, True, NAVYBLUE)
-    DISPLAYSURF.blit(userNameSurfaceObj, (left+20,top+60))
-
-def leftTopCoordsOfBox(boxx, boxy):
-    # Convert board coordinates to pixel coordinates
-    left = boxx * (BOXSIZE + GAPSIZE) + XMARGIN
-    top = boxy * (BOXSIZE + GAPSIZE) + YMARGIN
-    return (left, top)
-#def clientRender():
-    #pygame.display.update()
-    #FPSCLOCK.tick(FPS)
 
 def getBoxAtPixel(x, y):
     for boxx in range(BOARDWIDTH):

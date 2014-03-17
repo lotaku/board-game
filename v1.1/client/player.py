@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 # encoding: utf-8
+"""
+玩家模块
+"""
 import send_packet
 from player_manager import playerManager
-import gwdata
+#import gwdata
 import team
 from team_manager import teamManager
-import menu
+#import menu
 
-class Player:
-
+class PlayerX:
     def __init__(self):
         self.name=""
         self.team=""
@@ -24,17 +26,17 @@ class Player:
     def enterWorld(self,x,y):
         self.x=x
         self.y=y
-        gwdata.drawPlayer(self)
+        gwdata.draw.drawPlayer(self)
         playerManager.add(self)
     def move(self,x,y):
         print "点击移动前： 消除旧位置的 player"
-        gwdata.erasePlayer(self)
+        gwdata.draw.erasePlayer(self)
         self.x=x
         self.y=y
         print 'move 后 ,人物的 x,y :',self.x,self.y
         playerManager.add(self)
         print "点击移动 player"
-        gwdata.drawPlayer(self)
+        gwdata.draw.drawPlayer(self)
 
     def c2gsEnterWorld(self):
         packet=send_packet.SendPacket(1)
@@ -57,6 +59,58 @@ class Player:
     def exitGame(self):
         print "点击移动前： 消除旧位置的 player"
         gwdata.erasePlayer(self)
+        playerManager.remove(self)
+
+class Player:
+
+    def __init__(self):
+        self.name=""
+        self.team=""
+        self.teamName=""
+        self.iscaption=0
+        self.menu=""
+
+    def create(self,name):
+        self.name=name
+        self.x=1
+        self.y=1
+
+    def enterWorld(self,x,y):
+        self.x=x
+        self.y=y
+        gwdata.draw.drawPlayer(self)
+        playerManager.add(self)
+    def move(self,x,y):
+        print "点击移动前： 消除旧位置的 player"
+        gwdata.draw.erasePlayer(self)
+        self.x=x
+        self.y=y
+        print 'move 后 ,人物的 x,y :',self.x,self.y
+        playerManager.add(self)
+        print "点击移动 player"
+        gwdata.draw.drawPlayer(self)
+
+    def c2gsEnterWorld(self):
+        packet=send_packet.SendPacket(1)
+        packet.packString(self.name)
+        packet.send()
+
+    def c2gsPlayerMove(self,x,y):
+        playerManager.add(self)
+        packet=send_packet.SendPacket(2)
+        packet.packInt(x)
+        packet.packInt(y)
+        packet.packString(self.name)
+        packet.send()
+    def c2gsExitGame(self):
+        packet=send_packet.SendPacket(0)
+        packet.packInt(self.x)
+        packet.packInt(self.y)
+        packet.packString(self.name)
+        packet.send()
+    def exitGame(self):
+        print "点击移动前： 消除旧位置的 player"
+        gwdata.draw.erasePlayer(self)
         playerManager.remove(self)
     def c2gsTeamCreate(self):
         packet=send_packet.SendPacket(6)
@@ -150,25 +204,35 @@ class Player:
 
 
 
-player=Player()
-
-def gs2cEnterWorld(player,packet):
+#player=Player()
+localPlayer = Player()
+def gs2cEnterWorld(localPlayer,packet):
     x=packet.unpackInt()
     y=packet.unpackInt()
     name = packet.unpackString()
-    player.name = name
+    localPlayer.name = name
     print "解压用户名：",name
-    player.enterWorld(x,y)
-    playerManager.add(player)
+    localPlayer.enterWorld(x,y)
+    playerManager.add(localPlayer)
     print "c 收到 s 对： 进入世界的回应 ，获得初始位置，x，y",x,y
 
-def gs2cPlayerMove(player,packet):
+#def gs2cEnterWorld(player,packet):
+    #x=packet.unpackInt()
+    #y=packet.unpackInt()
+    #name = packet.unpackString()
+    #player.name = name
+    #print "解压用户名：",name
+    #player.enterWorld(x,y)
+    #playerManager.add(player)
+    #print "c 收到 s 对： 进入世界的回应 ，获得初始位置，x，y",x,y
+
+def gs2cPlayerMove(localPlayer,packet):
     x=packet.unpackInt()
     y=packet.unpackInt()
-    name =packet.unpackString()
-    player = playerManager.get(name)
-    player.move(x,y)
-    playerManager.add(player)
+    #name =packet.unpackString()
+    #player = playerManager.get(name)
+    localPlayer.move(x,y)
+    #playerManager.add(localPlayer)
     print "c 收到 s 对： 请求移动的回应 ，获得新位置，x，y",x,y
 
 def gs2cOtherEnterWorld(player,packet):
@@ -217,6 +281,9 @@ def gs2cExistingPlayers(player,packet):
 def gs2cOtherExitGame(player,packet):
     name = packet.unpackString()
     playerToExit =playerManager.remotePlayers[name]
+    if localPlayer.name == name:
+        gwdata.pygame.QUIT
+        gwdata.sys.exit()
     playerToExit.exitGame()
 def gs2cTeamCreate(player,packet):
     player.teamCreate()
@@ -244,45 +311,45 @@ def gs2cInviteReply(player,packet):
     inviter = playerManager.get(inviterName)
     invitee = playerManager.get(inviteeName)
 
-    if answer == "Yes":
-        if player.name == inviteeName: #这个玩家是被邀请者
-            print "#这个玩家是被邀请者"
-            newTeam = team.Team()
-            newTeam.create(inviter)
-            player.team = newTeam
-            for i in range(memberNum):
-                memberName = packet.unpackString()
-                print "被邀请者,通过邀请者,创建队伍,并添加所有队员(含自己)"
-                player.team.add(memberName)
-                member = playerManager.get(memberName)
-                print "初始化所有队友的右键菜单"
-                menu.Menu([],member)
-                member.menu.updateMenuOption([7])
-                playerManager.add(member)
-            menu.Menu([],player)
-            player.menu.updateMenuOption([6])# 退出队伍
-            menu.Menu([],inviter)
-            inviter.menu.updateMenuOption([8])# 显示" isMyCaption
+    #if answer == "Yes":
+        #if player.name == inviteeName: #这个玩家是被邀请者
+            #print "#这个玩家是被邀请者"
+            #newTeam = team.Team()
+            #newTeam.create(inviter)
+            #player.team = newTeam
+            #for i in range(memberNum):
+                #memberName = packet.unpackString()
+                #print "被邀请者,通过邀请者,创建队伍,并添加所有队员(含自己)"
+                #player.team.add(memberName)
+                #member = playerManager.get(memberName)
+                #print "初始化所有队友的右键菜单"
+                #menu.Menu([],member)
+                #member.menu.updateMenuOption([7])
+                #playerManager.add(member)
+            #menu.Menu([],player)
+            #player.menu.updateMenuOption([6])# 退出队伍
+            #menu.Menu([],inviter)
+            #inviter.menu.updateMenuOption([8])# 显示" isMyCaption
 
-            playerManager.add(player)
-            teamManager.add(newTeam)
-            playerManager.add(inviter)
-        elif player.name == inviterName:
-            print "这个玩家是队长,邀请者"
-            player.team = teamManager.getByTeamName(player)
-            player.team.add(inviteeName) #
-            invitee.menu.updateMenuOption([2,3])# 转让队长,踢掉玩家
+            #playerManager.add(player)
+            #teamManager.add(newTeam)
+            #playerManager.add(inviter)
+        #elif player.name == inviterName:
+            #print "这个玩家是队长,邀请者"
+            #player.team = teamManager.getByTeamName(player)
+            #player.team.add(inviteeName) #
+            #invitee.menu.updateMenuOption([2,3])# 转让队长,踢掉玩家
 
-            teamManager.add(player.team)
-            playerManager.add(player)
-            playerManager.add(invitee)
-        else:
-            player.team.add(inviteeName)
-            playerManager.add(player)
-            teamManager.add(player.team)
-            menu.Menu([],invitee)
-            invitee.menu.updateMenuOption([7])
-        player.inviteAnswerReply()
+            #teamManager.add(player.team)
+            #playerManager.add(player)
+            #playerManager.add(invitee)
+        #else:
+            #player.team.add(inviteeName)
+            #playerManager.add(player)
+            #teamManager.add(player.team)
+            #menu.Menu([],invitee)
+            #invitee.menu.updateMenuOption([7])
+        #player.inviteAnswerReply()
 
 def gs2cKickOut(player,packet):
     inviterName = packet.unpackString()

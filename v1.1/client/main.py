@@ -8,27 +8,27 @@ import gwdata
 class Client:
 
     def __init__(self):
-        #tcpClient.connect()
-        gwdata.gameWorld.play()
-        #gwdata.hint_enterYourName.blit()
+        tcpClient.connect()
+        gwdata.gameWin.play()
         gwdata.loginWin.loop()
-        #gwdata.initGameWorld()
+        gwdata.gameWorld.createMap()
 
     def loop(self):
         while True:
-            #tcpClient.recvPackets()
-            #tcpClient.handlePackets()
-            #self.handleEvents()
+            tcpClient.recvPackets()
+            tcpClient.handlePackets()
+            self.handleEvents()
             self.render()
-            #tcpClient.sendPackets()
+            tcpClient.sendPackets()
             #gwdata.freshLOCAL_PLAYER()
-            #gwdata.exitGame()
+            gwdata.exitGame()
 
     def handleEvents(self):
-        gwdata.playermove()
+        gwdata.playerAction.moveCapture()
     def render(self):
         gwdata.clientRender.render()
 
-client=Client()
-client.loop()
+if '__main__' == __name__ :
+    client=Client()
+    client.loop()
 
