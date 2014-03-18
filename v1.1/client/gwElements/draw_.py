@@ -1,4 +1,10 @@
+#!/usr/bin/env python
+# encoding: utf-8
+from game_world import gameWorld
+from game_win import gameWin
+from font_obj import FontObj
 import pygame
+
 class Draw():
     def __init__(self):
         pass
@@ -8,7 +14,7 @@ class Draw():
         left, top = gameWorld.leftTopCoordsOfBox(playerArgm.x,playerArgm.y)
         pygame.draw.rect(gameWin.displaySurf, gameWorld.BOXCOLOR, (left, top, gameWorld.BOXSIZE, gameWorld.BOXSIZE))
         #画玩家图像
-        gameWin.displaySurf.blit(girlImg, (left+20,top))
+        gameWin.displaySurf.blit(gameWorld.girlImg, (left+20,top))
         #画玩家名字
         userNameFontObj= FontObj(playerArgm.name)
         gameWin.displaySurf.blit(userNameFontObj.textSurf, (left+20,top+60))
@@ -37,7 +43,11 @@ class Draw():
         i=0
         for key in menuArgm.menuOptionList:
             print '画菜单'
-            menuLineSurf,menuLineRect = makeText(menuArgm.menuOption[key][0],WHITE,BGCOLOR,left,top+menuArgm.menuLineHeight*i)
-            gameWorld.blit(menuLineSurf,menuLineRect)
+            menuOption = menuArgm.menuOption[key][0]
+            topNew     = top+menuArgm.menuLineHeight*i
+            menuFontObj     = FontObj(menuOption)
+            menuFontObj.changeTopleft(left,topNew)
+            gameWin.displaySurf.blit(menuFontObj.textSurf,menuFontObj.textRect)
             i+=1
 
+draw=Draw()

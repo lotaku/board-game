@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
-from tcp_client import tcpClient
+from gwElements.tcp_client import tcpClient
+#import gwElements.gwdata as gwdata
 import gwdata
-#from player import player
-#import pygame
-#import class_manager
 class Client:
 
     def __init__(self):
@@ -20,8 +18,6 @@ class Client:
             self.handleEvents()
             self.render()
             tcpClient.sendPackets()
-            #gwdata.freshLOCAL_PLAYER()
-            gwdata.exitGame()
 
     def handleEvents(self):
         gwdata.playerAction.moveCapture()

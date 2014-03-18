@@ -3,11 +3,11 @@
 import sys
 import os
 import pygame
-from game_Win import gameWin
+from game_win import gameWin
 path=os.path.abspath("../../")
-print '绝对路径：',path
+#print '绝对路径：',path
 sys.path.insert(1,path)
-print sys.path
+#print sys.path
 class GameWorld():
     def __init__(self):
         #gameWin.displaySurf.fill(bgcolor)
@@ -16,7 +16,7 @@ class GameWorld():
         self.GAPSIZE=10
         self.BOARDWIDTH =6
         self.BOARDHEIGHT = 4
-        print "gameWin 模块的属性：",dir(gameWin)
+        #print "gameWin 模块的属性：",dir(gameWin)
         self.XMARGIN = int((gameWin.WINDOWWIDTH - (self.BOARDWIDTH* (self.BOXSIZE + self.GAPSIZE))) / 2)
         self.YMARGIN = int((gameWin.WINDOWHEIGHT - (self.BOARDHEIGHT * (self.BOXSIZE + self.GAPSIZE))) / 2)
         #                R    G    B
@@ -37,8 +37,8 @@ class GameWorld():
         self.BOXCOLOR       = self.WHITE
         self.HIGHLIGHTCOLOR = self.BLUE
         self.HAVE_DRAW_TEAM_MEMBER = 0
-        self.boyImg  = pygame.image.load('boy.png')
-        self.girlImg = pygame.image.load("catgirl.png")
+        self.boyImg  = pygame.image.load('../../boy.png')
+        self.girlImg = pygame.image.load("../../catgirl.png")
     def createMap(self):
         gameWin.displaySurf.fill(self.BGCOLOR)
         for boxx in range(self.BOARDWIDTH):
