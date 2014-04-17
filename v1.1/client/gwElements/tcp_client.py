@@ -5,7 +5,8 @@ from select import select
 from socket import socket
 from socket import AF_INET, SOCK_STREAM
 from recv_packet import RecvPacket
-from opccode import handlePacket
+#from opccode import handlePacket
+from opccode import opccode as opccodeInstance
 
 class TcpClient:
 
@@ -32,7 +33,7 @@ class TcpClient:
         for buffer in self.buffers:
             print 'c 收包处理:'
             packet=RecvPacket(buffer)
-            handlePacket(packet)
+            opccodeInstance.handlePacket(packet)
         self.buffers=[]
 
     def read(self):

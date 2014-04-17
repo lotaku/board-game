@@ -20,7 +20,7 @@ class Client:
             tcpClient.sendPackets()
 
     def handleEvents(self):
-        gwdata.playerAction.moveCapture()
+        gwdata.playerAction.mouseCapture()
     def render(self):
         gwdata.clientRender.render()
 

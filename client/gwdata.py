@@ -384,7 +384,6 @@ def reDrawPlayerBehindMenu(left,top,LastBoxx,LastBoxy):
                     print "菜单后面的玩家x,y"
                     print (playerBehindRMenu.x,playerBehindRMenu.y)
                     drawPlayer(playerBehindRMenu)
-
 def inviteAskShow(player,inviterName_local):
     global inviterName
     inviterName = inviterName_local

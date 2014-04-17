@@ -102,32 +102,27 @@ class Player:
         self.gs2cInviteReplay(answer,inviter)
     def gs2cInviteReplay(self,answer,inviter):
         packet = SendPacket(9)
+        invitee = self
         if answer == "Yes":#在这里,让Server做判断,对么? 毕竟要更新服务器的队伍信息.
-            print "邀请者队伍实例",
-            print inviter.team
-            inviterTeam = teamManager.get(inviter)
-            inviterTeam.add(self)
-            inviter.team = inviterTeam
-            print "复制team 给被邀请者"
-            self.team = inviterTeam
-            self.teamName = inviterTeam.name
+            inviter.team = teamManager.get(inviter)
+            inviter.team.add(invitee)
+            invitee.team = inviter.team
+            invitee.teamName = inviter.team.name
 
             #更新Server信息
-            teamManager.add(inviterTeam)
-            playerManager.add(inviter)
-            self.updatePlayerOnServer(self,inviter)
+            self.updatePlayerOnServer(invitee,inviter)
 
             packet.packString(answer) # 答复
             packet.packString(inviter.name) #邀请者名字
-            packet.packString(self.name)#被邀请者名字
+            packet.packString(invitee.name)#被邀请者名字
             #发送给队伍所有人
-            #memberNum = len(inviter.team.member)
-            memberNum = len(inviterTeam.member)
+            memberNum = len(inviter.team.member)
             packet.packInt(memberNum) # 总队友数
-            for member in inviterTeam.member:
+            #打包team里面所有成员的名字
+            for member in inviter.team.member:
                 packet.packString(member.name)
-            for member in inviterTeam.member:
-                packet.send(member)
+            #发送给team的所有成员
+            self.sendToTeamMember(packet,inviter)
     def updatePlayerOnServer(*players):
         for playerGet in players:
             teamManager.add(playerGet.team)
@@ -205,16 +200,10 @@ class Player:
 
     def sendToTeamMember(self,packet,player):
         player.team = teamManager.get(player)
-        print "发送包给每个队友实例"
         print "所有的队员实例:",player.team.member
+        print "发送包给每个队友实例"
         for member in player.team.member:
             packet.send(member)
-    #def sendToTeamMember(self,packet,player):
-        #self.team = teamManager.get(self)
-        #print "发送包给每个队友实例"
-        #print "所有的队员实例:",self.team.member
-        #for member in self.team.member:
-            #packet.send(member)
 
     def packetAllTeamMemberName(self,packet,player):
         playerTeam = teamManager.get(player)

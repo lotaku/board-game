@@ -79,7 +79,7 @@ def gs2cTeamCreate(player,packet):
 def gs2cOtherTeamCreate(player,packet):
     playerName = packet.unpackString()
     teamName= packet.unpackString()
-    playerGeted = playerManager.get(playerName)
+    playerGeted = playerManager.getPlayerByName(playerName)
     newTeam = team.Team()
     newTeam.create(playerGeted)
     playerGeted.iscaption =1

@@ -19,6 +19,7 @@ class Player:
         self.x=0
         self.y=0
     def enterWorld(self):
+        playerManager.add(self)
         self.gs2cEnterWorld()
         self.gs2cExistingPlayers()
         self.gs2cOhterEnterWorld()
@@ -103,8 +104,7 @@ class Player:
     def gs2cInviteReplay(self,answer,inviter):
         packet = SendPacket(9)
         if answer == "Yes":#在这里,让Server做判断,对么? 毕竟要更新服务器的队伍信息.
-            print "邀请者队伍实例",
-            print inviter.team
+            print "目前队伍管理类里，所有的队伍：", teamManager.teams
             inviterTeam = teamManager.get(inviter)
             inviterTeam.add(self)
             inviter.team = inviterTeam

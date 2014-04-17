@@ -10,13 +10,19 @@ class Team():
     def create(self,player):
         self.caption = player.name
         self.name="TN"+player.name
-        self.member.append(player.name)
-    def add(self,playerName):
-        if playerName not in self.member:
-            self.member.append(playerName)
+        self.member.append(player)
+        player.team = self
+    def add(self,player):
+        if player not in self.member:
+            self.member.append(player)
     def remove(self,player):
         self.member.remove(player)
     def removeByName(self,playerName):
         self.member.remove(playerName)
-team=Team()
+    def getPlayerByName(self,playerName):
+        for playerArgm in self.member:
+            if playerArgm.name == playerName:
+                return playerArgm
+            else:
+                print "该玩家不存在，请确认玩家的名字正确（str型）"
 

@@ -226,8 +226,6 @@ def enterWorld(userNameTemp):
     if receivedData:
         closeLoginWindow = 1
     return board,closeLoginWindow
-
-
 def showWellcomUser(userName):
     fontObj = pygame.font.Font('freesansbold.ttf', 22)
     userName = 'Wellcom ' + userName

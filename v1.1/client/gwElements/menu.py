@@ -2,7 +2,7 @@
 # encoding: utf-8
 class Menu():
     def __init__(self):
-        pass
+        self.isShowing = 0
     def createRightMenu(self):
         import player
         menuOption={

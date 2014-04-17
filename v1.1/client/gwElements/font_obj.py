@@ -21,6 +21,10 @@ class FontObj():
         self.textSurf = fontObj.render(self.text,True,self.color,self.bgcolor)
         self.textRect = self.textSurf.get_rect()
         self.textRect.topleft=self.topleft
+        #以后此类对象surf,rect的属性，尽力定义为 self.surt,self.rect 方便记忆和调用
+        #在invitation 类中调用到
+        self.rect = self.textRect
+        self.surf = self.textSurf
 
     def changeTopleft(self,top,left):
         """self.textRect = top,left"""
